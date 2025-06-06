@@ -3,6 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "твій API ключ",
+    authDomain: "твоє-ім'я-проєкту.firebaseapp.com",
+    projectId: "твоє-ім'я-проєкту",
+    storageBucket: "твоє-ім'я-проєкту.appspot.com",
+    messagingSenderId: "номер",
+    appId: "App ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
     <meta name="google-site-verification" content="твій_унікальний_код" />
     <title>YarikOgraf - Надихаюсь життям природи та її красою</title>
     <!-- Tailwind CSS CDN -->
