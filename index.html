@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-
 <script>
   const firebaseConfig = {
     apiKey: "твій API ключ",
@@ -953,5 +952,25 @@
             updateTopDonatorsList('', 0); // Initialize an empty list
         });
     </script>
+    <script>
+  document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      if (user.email === "yarikphoto26@gmail.com") {
+        window.location.href = "admin.html";
+      } else {
+        alert("Ви не маєте доступу!");
+      }
+    })
+    .catch((error) => {
+      alert("Помилка входу: " + error.message);
+    });
+  });
+</script>
 </body>
 </html>
