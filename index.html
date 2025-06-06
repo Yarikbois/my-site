@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YarikOgraf - Надихаюсь життям природи та її красою</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind CSS custom configuration for colors and font family
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        // Custom font family 'Inter'
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        // Custom color palette for the website
+                        'yo-red': '#D41811',
+                        'yo-purple': '#8E44AD',
+                        'yo-green': '#2ECC71',
+                        'yo-black': '#000000',
+                        'yo-white': '#FFFFFF',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome for icons, provides various scalable vector icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global styles to prevent horizontal scrollbar caused by animations or off-screen elements */
+        html, body {
+            overflow-x: hidden;
+        }
+        /* Base body styles, applying Inter font, default background, and text color */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000; /* Fallback default black background */
+            color: #fff; /* Default white text */
+            transition: background-color 0.5s ease; /* Smooth transition for background changes */
+        }
+
+        /* Custom scrollbar styling for a consistent aesthetic */
+        ::-webkit-scrollbar {
+            width: 8px; /* Width of the scrollbar */
+        }
+        ::-webkit-scrollbar-track {
+            background: #222; /* Color of the scrollbar track */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888; /* Color of the scrollbar thumb */
+            border-radius: 4px; /* Rounded corners for the thumb */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; /* Color of the scrollbar thumb on hover */
+        }
+
+        /* Burger icon animation for open/close state */
+        .burger-icon {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 30px;
+            height: 25px;
+            cursor: pointer;
+            z-index: 50; /* Ensures the burger icon is above the sidebar */
+        }
+        .burger-icon div {
+            width: 100%;
+            height: 3px;
+            background-color: #D41811; /* Changed to yo-red */
+            border-radius: 2px;
+            transition: all 0.3s linear; /* Smooth transition for burger lines */
+            transform-origin: 1px; /* Pivot point for rotations */
+        }
+        .burger-icon.open div:nth-child(1) {
+            transform: rotate(-45deg); /* Rotates the top line to form an 'X' */
+        }
+        .burger-icon.open div:nth-child(2) {
+            opacity: 0; /* Hides the middle line */
+            transform: translateX(20px); /* Moves the middle line out of view */
+        }
+        .burger-icon.open div:nth-child(3) {
+            transform: rotate(45deg); /* Rotates the bottom line to form an 'X' */
+        }
+
+        /* Sidebar transition for sliding in from the right */
+        .sidebar {
+            transition: right 0.3s ease-in-out; /* Smooth slide animation */
+            right: -256px; /* Hidden by default, positioned off-screen to the right (w-64 = 256px) */
+        }
+        .sidebar.open {
+            right: 0; /* Moves the sidebar into the visible area */
+        }
+        /* Overlay that appears when the sidebar is open, covering main content */
+        .content-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            z-index: 35; /* Positioned below sidebar, above main content */
+        }
+        .content-overlay.active {
+            display: block; /* Becomes visible when active */
+        }
+
+        /* Dimming and blurring effect for main content when sidebar is open */
+        main.dim-content {
+            filter: brightness(0.3) blur(3px); /* Dims and blurs the content */
+            pointer-events: none; /* Makes the content non-interactive */
+        }
+
+        /* Image hover effect: scales the image up */
+        .image-hover-scale {
+            transition: transform 0.3s ease-in-out; /* Smooth scaling transition */
+        }
+        .image-hover-scale:hover {
+            transform: scale(1.1); /* Scales the image to 110% on hover */
+        }
+
+        /* Video container hover effect: scales the video up */
+        .video-container video {
+            transition: transform 0.3s ease-in-out; /* Smooth scaling transition for video */
+        }
+        .video-container:hover video {
+            transform: scale(1.1); /* Scales the video to 110% on hover */
+        }
+    </style>
+</head>
+<body class="font-inter bg-gradient-to-br from-indigo-900 to-purple-900 text-white min-h-screen transition-all duration-500 overflow-x-hidden">
+    <!-- Header section, fixed at the top with branding and burger menu icon -->
+    <header class="bg-yo-black text-yo-white p-4 md:p-6 flex justify-between items-center shadow-lg relative z-30 rounded-b-md">
+        <div class="flex items-center">
+            <!-- Logo area: "Y" in red, "O" with gradient text -->
+            <div class="text-3xl font-bold flex items-baseline">
+                <span class="text-yo-red">Y</span><span class="text-transparent bg-gradient-to-r from-yo-purple to-yo-green bg-clip-text">O</span>
+            </div>
+            <!-- Site name, visible on larger screens -->
+            <h1 class="text-xl md:text-2xl font-bold ml-4 hidden md:block">YarikOgraf</h1>
+        </div>
+        <!-- Slogan, centered on medium and larger screens -->
+        <p class="hidden md:block text-sm italic absolute left-1/2 transform -translate-x-1/2">«Надихаюсь життям природи та її красою»</p>
+        <!-- Burger Icon for toggling the sidebar menu -->
+        <!-- Fixed position for reliability -->
+        <div class="burger-icon fixed top-4 right-4 md:right-6 z-50" id="burger-icon" aria-label="Переключити навігаційне меню">
+            <div class="bg-yo-red"></div>
+            <div class="bg-yo-red"></div>
+            <div class="bg-yo-red"></div>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation Menu -->
+    <nav id="sidebar" class="fixed top-0 h-full w-64 bg-yo-black text-yo-white p-6 z-40 shadow-xl sidebar">
+        <ul class="pt-20">
+            <!-- Navigation links for different pages using data-page for JS navigation -->
+            <li class="mb-4">
+                <a href="#" data-page="home" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-home">Головна</a>
+            </li>
+            <li class="mb-4">
+                <a href="#" data-page="buy-photo" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-buy-photo">Купити фото</a>
+            </li>
+            <li class="mb-4">
+                <a href="#" data-page="buy-video" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-buy-video">Купити відео</a>
+            </li>
+            <li class="mb-4">
+                <a href="#" data-page="order-photoshoot" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-order-photoshoot">Замовити фотосесію</a>
+            </li>
+            <li class="mb-4">
+                <a href="#" data-page="support" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-support">Підтримка</a>
+            </li>
+            <li class="mb-4">
+                <a href="#" data-page="donate" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-donate">Допомога</a>
+            </li>
+            <li class="mb-4">
+                <a href="#" data-page="admin" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-admin">Адмін</a>
+            </li>
+        </ul>
+        <!-- User ID display at the bottom of the sidebar (remains static for HTML version) -->
+        <div class="absolute bottom-6 right-6 text-sm text-gray-400" id="user-id-display">
+            Ваш ID: гость
+        </div>
+    </nav>
+
+    <!-- Content Overlay: appears when the sidebar is open to dim the main content -->
+    <div id="content-overlay" class="content-overlay"></div>
+
+    <!-- Main Content Area: holds all the page sections -->
+    <main id="content-area" class="p-4 md:p-8 min-h-screen transition-all duration-300">
+        <!-- Home Page Content Section -->
+        <section id="home-page" class="page active p-6 md:p-10 rounded-xl shadow-2xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Ласкаво просимо до YarikOgraf!</h2>
+            <div class="max-w-4xl mx-auto text-lg leading-relaxed text-center mb-12 text-gray-200">
+                <p class="mb-4">Привіт! Мене звати Ярослав, і фотографія та відеозйомка — це більше ніж просто хобі. Це справа, яка дозволяє мені передавати настрій, емоції та моменти життя, які хочеться зберегти назавжди.</p>
+                <p class="mb-4">Мій шлях у цій сфері почався кілька років тому зі звичайного фотоапарата, яким я знімав природу та людей навколо. Згодом це перетворилося у справжню пристрасть, що мотивує мене постійно вдосконалювати свої навички та відкривати нові напрями.</p>
+                <p class="mb-4">Я прагну створювати контент, який викликає емоції та залишається в пам’яті. Зараз я працюю над розширенням своїх послуг, щоб кожен міг придбати унікальні фото та відео або підтримати мій проєкт.</p>
+                <p>Долучайтеся до моєї творчості — буду радий новим знайомствам і спільним проєктам!</p>
+            </div>
+
+            <!-- Search input section -->
+            <div class="max-w-xl mx-auto mb-12">
+                <label for="search-input" class="sr-only">Пошук фото/відео</label>
+                <div class="relative">
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Пошук фото/відео за #тегом..."
+                        class="w-full p-3 pl-10 pr-4 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-yo-red"
+                    />
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-400 mt-2 text-center">Наприклад: #природа, #місто, #квітка</p>
+            </div>
+
+            <h3 class="text-2xl md:text-3xl font-bold text-center mb-8 text-yo-white">Галерея робіт</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <!-- Example Photo 1 -->
+                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+                    <img src="https://placehold.co/600x400/1a202c/e2e8f0?text=Photo+1" alt="Приклад фото 1" class="w-full h-auto image-hover-scale cursor-pointer">
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400 mb-2">#природа #пейзаж #західсонця</p>
+                        <p class="text-gray-300">Чудовий краєвид на заході сонця, що передає спокій природи.</p>
+                    </div>
+                </div>
+                <!-- Example Photo 2 -->
+                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+                    <img src="https://placehold.co/600x400/1a202c/e2e8f0?text=Photo+2" alt="Приклад фото 2" class="w-full h-auto image-hover-scale cursor-pointer">
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400 mb-2">#макро #квітка #краплі</p>
+                        <p class="text-gray-300">Макрозйомка квітки з ранковими краплями роси.</p>
+                    </div>
+                </div>
+                <!-- Example Photo 3 -->
+                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+                    <img src="https://placehold.co/600x400/1a202c/e2e8f0?text=Photo+3" alt="Приклад фото 3" class="w-full h-auto image-hover-scale cursor-pointer">
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400 mb-2">#місто #ніч #неон</p>
+                        <p class="text-gray-300">Нічне місто, освітлене неоновими вогнями, що створює атмосферу.</p>
+                    </div>
+                </div>
+                <!-- Example Photo 4 -->
+                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+                    <img src="https://placehold.co/600x400/1a202c/e2e8f0?text=Photo+4" alt="Приклад фото 4" class="w-full h-auto image-hover-scale cursor-pointer">
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400 mb-2">#тварини #ліс #дикі</p>
+                        <p class="text-gray-300">Захоплюючий кадр дикої тварини в природному середовищі.</p>
+                    </div>
+                </div>
+                <!-- Example Photo 5 -->
+                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+                    <img src="https://placehold.co/600x400/1a202c/e2e8f0?text=Photo+5" alt="Приклад фото 5" class="w-full h-auto image-hover-scale cursor-pointer">
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400 mb-2">#архітектура #історія #памятка</p>
+                        <p class="text-gray-300">Історична пам'ятка, що вражає своєю архітектурою.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action buttons for navigation from homepage -->
+            <div class="flex flex-col md:flex-row justify-center items-center gap-6">
+                <button class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300" id="btn-show-buy-photo" data-page="buy-photo">Ще фото</button>
+                <button class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300" id="btn-show-donate-home" data-page="donate">Підтримай мене</button>
+            </div>
+        </section>
+
+        <!-- Buy Photo Page Content -->
+        <section id="buy-photo-page" class="page hidden bg-gradient-to-br from-pink-700 to-purple-800 p-6 md:p-10 rounded-xl shadow-2xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Знайдіть та придбайте ідеальні фото</h2>
+            <p class="text-center text-lg text-gray-200 mb-8">
+                Тут ви зможете знайти та придбати унікальні фото для вашої цілі та мети. Зверніть увагу: завантажити фото можна буде протягом однієї доби після оплати. Після цього купівлю потрібно буде повторити.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Photo Item 1 -->
+                <div class="bg-gray-900 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+                    <img src="https://placehold.co/600x400/333/eee?text=Photo+For+Sale" alt="Фото для продажу" class="w-full h-auto image-hover-scale cursor-pointer rounded-t-md">
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400 mb-2">#квітка #синя #макро #природа</p>
+                        <p class="text-gray-300 mb-3">Це ніжна польова квітка з насиченим синім відтінком та блискучими пелюстками, знята в макрорежимі.</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-2xl font-bold text-yo-green" data-currency-usd="5.00">$5.00</span>
+                            <span class="text-sm text-gray-400">~185 UAH</span> <!-- Placeholder for local currency -->
+                        </div>
+                        <button class="buy-download-button bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" data-item="photo-1" data-type="photo">Купити фото</button>
+                    </div>
+                </div>
+                <!-- Photo Item 2 -->
+                <div class="bg-gray-900 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+                    <img src="https://placehold.co/600x400/333/eee?text=Urban+Shot" alt="Міський пейзаж" class="w-full h-auto image-hover-scale cursor-pointer rounded-t-md">
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400 mb-2">#місто #урбан #архітектура #дощ</p>
+                        <p class="text-gray-300 mb-3">Фото дощового міського пейзажу, що відображає динаміку сучасного життя.</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-2xl font-bold text-yo-green" data-currency-usd="7.00">$7.00</span>
+                            <span class="text-sm text-gray-400">~259 UAH</span>
+                        </div>
+                        <button class="buy-download-button bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" data-item="photo-2" data-type="photo">Купити фото</button>
+                    </div>
+                </div>
+                <!-- Photo Item 3 -->
+                <div class="bg-gray-900 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+                    <img src="https://placehold.co/600x400/333/eee?text=Nature+Wonder" alt="Природне диво" class="w-full h-auto image-hover-scale cursor-pointer rounded-t-md">
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400 mb-2">#ліс #туман #світанок #атмосфера</p>
+                        <p class="text-gray-300 mb-3">Магічний світанок у туманному лісі, що створює неповторну атмосферу та загадковість.</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-2xl font-bold text-yo-green" data-currency-usd="6.50">$6.50</span>
+                            <span class="text-sm text-gray-400">~240 UAH</span>
+                        </div>
+                        <button class="buy-download-button bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" data-item="photo-3" data-type="photo">Купити фото</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Buy Video Page Content -->
+        <section id="buy-video-page" class="page hidden bg-gradient-to-br from-green-700 to-blue-800 p-6 md:p-10 rounded-xl shadow-2xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Знайдіть цікаві відео</h2>
+            <p class="text-center text-lg text-gray-200 mb-8">
+                Тут ви знайдете цікаві відео, що захоплять вашу увагу. Пам'ятайте: завантажити відео можна протягом однієї доби після оплати.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Video Item 1 -->
+                <div class="bg-gray-900 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+                    <div class="video-container relative pb-[56.25%] h-0 overflow-hidden">
+                        <video src="https://www.w3schools.com/html/mov_bbb.mp4" controls preload="metadata" class="absolute top-0 left-0 w-full h-full object-cover cursor-pointer rounded-t-md"></video>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400 mb-2">#природа #птахи #ліс #звуки</p>
+                        <p class="text-gray-300 mb-3">Заспокійливе відео з птахами в лісі, зняте рано вранці, що супроводжується природними звуками.</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-2xl font-bold text-yo-green" data-currency-usd="8.50">$8.50</span>
+                            <span class="text-sm text-gray-400">~314 UAH</span>
+                        </div>
+                        <button class="buy-download-button bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" data-item="video-1" data-type="video">Купити відео</button>
+                    </div>
+                </div>
+                <!-- Video Item 2 -->
+                <div class="bg-gray-900 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+                    <div class="video-container relative pb-[56.25%] h-0 overflow-hidden">
+                        <video src="https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4" controls preload="metadata" class="absolute top-0 left-0 w-full h-full object-cover cursor-pointer rounded-t-md"></video>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400 mb-2">#місто #таймлапс #вечір #трафік</p>
+                        <p class="text-gray-300 mb-3">Захоплюючий таймлапс вечірнього міста, що показує рух транспорту та освітлення.</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-2xl font-bold text-yo-green" data-currency-usd="9.50">$9.50</span>
+                            <span class="text-sm text-gray-400">~351 UAH</span>
+                        </div>
+                        <button class="buy-download-button bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" data-item="video-2" data-type="video">Купити відео</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order Photoshoot Page Content -->
+        <section id="order-photoshoot-page" class="page hidden bg-gradient-to-br from-red-700 to-rose-800 p-6 md:p-10 rounded-xl shadow-2xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Замовити фотосесію</h2>
+            <p class="text-center text-lg text-gray-200 mb-8">
+                Оберіть зручний для вас день та час для фотосесії. Запис доступний раз на годину.
+            </p>
+
+            <div class="max-w-3xl mx-auto bg-gray-900 rounded-lg p-6 shadow-lg border border-gray-700">
+                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Календар доступності</h3>
+                <div id="calendar" class="grid grid-cols-7 gap-1 text-center text-yo-white rounded-md">
+                    <!-- Weekday Headers -->
+                    <div class="font-bold text-gray-400 py-2">Пн</div>
+                    <div class="font-bold text-gray-400 py-2">Вт</div>
+                    <div class="font-bold text-gray-400 py-2">Ср</div>
+                    <div class="font-bold text-gray-400 py-2">Чт</div>
+                    <div class="font-bold text-gray-400 py-2">Пт</div>
+                    <div class="font-bold text-gray-400 py-2">Сб</div>
+                    <div class="font-bold text-gray-400 py-2">Нд</div>
+                    <!-- Calendar Days (example, dynamic generation in JS would be better for real app) -->
+                    <!-- Filler days for the start of the month -->
+                    <div class="py-2 text-gray-600"></div>
+                    <div class="py-2 text-gray-600"></div>
+                    <div class="py-2 text-gray-600"></div>
+                    <div class="py-2 text-gray-600"></div>
+                    <!-- Actual days -->
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-01">1</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-02">2</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-03">3</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-04">4</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-05">5</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800 selected-day border-2 border-yo-red" data-date="2025-06-06">6</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-07">7</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-08">8</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-09">9</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-10">10</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-11">11</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-12">12</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-13">13</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-14">14</div>
+                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-15">15</div>
+                </div>
+
+                <div class="mt-8">
+                    <h4 class="text-lg font-bold mb-4 text-yo-white">Обраний день: <span id="selected-date">6 червня 2025</span></h4>
+                    <label for="preferred-time" class="block text-gray-300 text-sm font-bold mb-2">Оберіть час:</label>
+                    <select id="preferred-time" class="bg-gray-800 text-white p-3 rounded-md w-full mb-4 focus:outline-none focus:ring-2 focus:ring-yo-red">
+                        <option value="">Оберіть час</option>
+                        <option value="9:00">09:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option>
+                        <option value="12:00">12:00</option>
+                        <option value="13:00">13:00</option>
+                        <option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option>
+                        <option value="16:00">16:00</option>
+                        <option value="17:00">17:00</option>
+                    </select>
+
+                    <label for="contact-instagram" class="block text-gray-300 text-sm font-bold mb-2">Ваш Instagram (або Gmail):</label>
+                    <input type="text" id="contact-instagram" placeholder="@ваш_інстаграм або ваш_email@gmail.com" class="bg-gray-800 text-white p-3 rounded-md w-full mb-4 focus:outline-none focus:ring-2 focus:ring-yo-red" />
+
+                    <button class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" id="btn-order-photoshoot">Записатись на фотосесію</button>
+                </div>
+
+                <p class="text-center text-gray-400 text-sm mt-6">
+                    Також ви можете зв'язатись зі мною напряму через <a href="https://www.instagram.com/yarikograf/" target="_blank" class="text-yo-red hover:underline">Instagram</a> або <a href="mailto:your.email@gmail.com" class="text-yo-red hover:underline">Gmail</a>.
+                </p>
+            </div>
+        </section>
+
+        <!-- Support Page Content -->
+        <section id="support-page" class="page hidden bg-gradient-to-br from-fuchsia-700 to-purple-800 p-6 md:p-10 rounded-xl shadow-2xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Підтримка</h2>
+            <p class="text-center text-lg text-gray-200 mb-8">
+                Якщо у вас виникли питання або проблеми, спробуйте знайти відповідь у розділі "Часті питання". Якщо ви не знайшли потрібної інформації, будь ласка, залиште своє ім'я та опис проблеми, і я з вами зв'яжуся.
+            </p>
+
+            <div class="max-w-3xl mx-auto bg-gray-900 rounded-lg p-6 shadow-lg border border-gray-700 mb-8">
+                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Часті питання</h3>
+                <div class="space-y-4 text-gray-200">
+                    <div>
+                        <h4 class="font-bold text-lg text-yo-red">Як завантажити куплені фото/відео?</h4>
+                        <p>Після успішної оплати кнопка "Купити" на сторінці продукту зміниться на "Завантажити". Ви можете завантажити файл протягом 24 годин.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg text-yo-red">Які способи оплати доступні?</h4>
+                        <p>Наразі ми працюємо над інтеграцією платіжних систем. Оплата буде додана після повної готовності сайту.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg text-yo-red">Чи можу я замовити індивідуальну фотосесію?</h4>
+                        <p>Так, ви можете замовити фотосесію через розділ "Замовити фотосесію", обравши зручну дату та час у календарі.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg text-yo-red">Як я можу підтримати ваш проєкт?</h4>
+                        <p>Ви можете підтримати проєкт, зробивши донат у розділі "Допомога". Будь-яка сума важлива!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-3xl mx-auto bg-gray-900 rounded-lg p-6 shadow-lg border border-gray-700">
+                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Зв'яжіться зі мною</h3>
+                <form id="support-form">
+                    <div class="mb-4">
+                        <label for="support-name" class="block text-gray-300 text-sm font-bold mb-2">Ваше ім'я:</label>
+                        <input type="text" id="support-name" placeholder="Ваше ім'я" class="bg-gray-800 text-white p-3 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-yo-red" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="support-problem" class="block text-gray-300 text-sm font-bold mb-2">Опис проблеми:</label>
+                        <textarea id="support-problem" rows="5" placeholder="Опишіть вашу проблему або питання" class="bg-gray-800 text-white p-3 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-yo-red" required></textarea>
+                    </div>
+                    <button type="submit" class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full">Надіслати запит</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Donate Page Content -->
+        <section id="donate-page" class="page hidden bg-gradient-to-br from-red-800 to-black p-6 md:p-10 rounded-xl shadow-2xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Підтримай проєкт YarikOgraf</h2>
+            <p class="text-center text-lg text-gray-200 mb-8">
+                Дякую вам за підтримку та процвітання цього сайту та моєї роботи! Кожен ваш внесок допомагає мені творити кращий контент.
+            </p>
+
+            <div class="max-w-3xl mx-auto bg-gray-900 rounded-lg p-6 shadow-lg border border-gray-700">
+                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Зробити донат</h3>
+                <div class="mb-4">
+                    <label for="donor-name" class="block text-gray-300 text-sm font-bold mb-2">Ваше ім'я (необов'язково, для списку донатерів):</label>
+                    <input
+                        type="text"
+                        id="donor-name"
+                        placeholder="Ваше ім'я або нік"
+                        class="bg-gray-800 text-white p-3 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-yo-red"
+                    />
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                    <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 donate-button-fixed" data-amount="1">$1</button>
+                    <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 donate-button-fixed" data-amount="10">$10</button>
+                    <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 donate-button-fixed" data-amount="100">$100</button>
+                    <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 donate-button-fixed" data-amount="200">$200</button>
+                    <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 donate-button-fixed" data-amount="500">$500</button>
+                    <input
+                        type="number"
+                        id="custom-donation-amount"
+                        placeholder="10.000+"
+                        min="1"
+                        class="bg-gray-800 text-white py-4 text-xl text-center rounded-md focus:outline-none focus:ring-2 focus:ring-yo-red"
+                    />
+                </div>
+                <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" id="btn-custom-donate">Зробити донат</button>
+            </div>
+
+            <div class="max-w-3xl mx-auto bg-gray-900 rounded-lg p-6 shadow-lg border border-gray-700 mt-8">
+                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Топ 10 донатерів</h3>
+                <ul id="top-donators-list" class="list-disc list-inside text-gray-300">
+                    <!-- Top donators will be loaded here by JS, for this static version -->
+                    <li class="text-gray-400">Наразі немає донатерів. Будьте першим!</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Admin Page Content -->
+        <section id="admin-page" class="page hidden bg-gradient-to-br from-gray-700 to-gray-900 p-6 md:p-10 rounded-xl shadow-2xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Сторінка адміністратора</h2>
+            <p class="text-center text-lg text-gray-200 mb-8">
+                Ця сторінка доступна лише адміністратору. Тут ви зможете редагувати весь сайт, переглядати статистику переглядів, відвідувань, покупок та зібраних коштів за певний період.
+            </p>
+            <div class="max-w-3xl mx-auto bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700">
+                <div id="admin-content-placeholder">
+                    <p class="text-center text-gray-400">
+                        <i class="fas fa-lock text-5xl mb-4 text-yo-red"></i><br />
+                        У вас немає доступу до цієї сторінки. <br />
+                        (Ця версія сайту не має системи автентифікації. Щоб отримати доступ до адмін-панелі, потрібен повноцінний бекенд.)
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scroll-to-Top Button: fixed button to scroll page back to top -->
+    <button id="scrollToTopBtn" class="fixed bottom-6 right-6 bg-yo-black text-yo-white p-4 rounded-full shadow-lg hover:bg-gray-800 transition-all duration-300 hidden">
+        <i class="fas fa-arrow-up text-2xl"></i>
+    </button>
+
+    <!-- Modal for notifications: custom alert/confirmation dialog -->
+    <div id="app-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-900 p-8 rounded-lg shadow-xl border border-gray-700 max-w-sm text-center rounded-md">
+            <p id="modal-message" class="text-lg text-white mb-6"></p>
+            <button class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" id="modal-close-button">Закрити</button>
+        </div>
+    </div>
+
+    <!-- Footer section of the website -->
+    <footer class="bg-yo-black text-yo-white p-6 md:p-8 text-center shadow-inner mt-12 rounded-t-md">
+        <div class="flex items-baseline justify-center mb-4">
+            <!-- Footer Logo -->
+            <span class="text-3xl font-bold text-yo-red">Y</span><span class="text-3xl font-bold text-transparent bg-gradient-to-r from-yo-purple to-yo-green bg-clip-text">O</span>
+        </div>
+        <p class="text-sm text-gray-400">&copy; 2023 YarikOgraf. Всі права захищено.</p>
+    </footer>
+
+    <!-- Custom JavaScript for interactivity -->
+    <script type="module">
+        let currentPage = 'home'; // Tracks the currently active page
+
+        /**
+         * Displays a custom modal with a given message.
+         * @param {string} message - The message to display in the modal.
+         */
+        function showModal(message) {
+            const appModal = document.getElementById('app-modal');
+            const modalMessage = document.getElementById('modal-message');
+            if (modalMessage && appModal) {
+                modalMessage.textContent = message;
+                appModal.classList.remove('hidden'); // Show the modal
+            }
+        }
+
+        /**
+         * Closes the custom modal and clears its message.
+         */
+        function closeModal() {
+            const appModal = document.getElementById('app-modal');
+            if (appModal) {
+                appModal.classList.add('hidden'); // Hide the modal
+                document.getElementById('modal-message').textContent = ''; // Clear message
+            }
+        }
+
+        /**
+         * Handles the donation submission (simulated for this static version).
+         * @param {number} amount - The amount of the donation.
+         */
+        function handleDonate(amount) {
+            const donorNameInput = document.getElementById('donor-name');
+            const donorName = donorNameInput ? donorNameInput.value.trim() : 'Анонім';
+            showModal(`Дякую, ${donorName || 'аноніме'}, за вашу підтримку! Ваш внесок $${amount.toFixed(2)} дуже важливий для процвітання цього сайту та моєї роботи.`);
+            
+            // Clear input fields after simulated successful donation
+            const customDonationAmountInput = document.getElementById('custom-donation-amount');
+            if (customDonationAmountInput) customDonationAmountInput.value = '';
+            if (donorNameInput) donorNameInput.value = '';
+
+            // In a real app, this would send data to a backend/Firestore
+            // For now, we update a simple simulated list
+            updateTopDonatorsList(donorName, amount);
+        }
+
+        // Simple in-memory storage for top donators for this static HTML version
+        const simulatedDonators = [];
+
+        /**
+         * Updates the "Top 10 Donators" list in the UI.
+         * @param {string} name - The name of the donator.
+         * @param {number} amount - The amount donated.
+         */
+        function updateTopDonatorsList(name, amount) {
+            simulatedDonators.push({ name: name, amount: amount, timestamp: Date.now() });
+            // Sort by amount descending, then by timestamp descending for ties
+            simulatedDonators.sort((a, b) => {
+                if (b.amount !== a.amount) {
+                    return b.amount - a.amount;
+                }
+                return b.timestamp - a.timestamp;
+            });
+
+            const donatorsList = document.getElementById('top-donators-list');
+            if (donatorsList) {
+                donatorsList.innerHTML = ''; // Clear existing list
+                if (simulatedDonators.length === 0) {
+                    donatorsList.innerHTML = '<li class="text-gray-400">Наразі немає донатерів. Будьте першим!</li>';
+                    return;
+                }
+                // Display top 10
+                simulatedDonators.slice(0, 10).forEach((donator, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center py-2 border-b border-gray-700 last:border-b-0';
+                    li.innerHTML = `
+                        <span class="font-semibold text-lg text-yo-red">${index + 1}.</span>
+                        <span class="flex-grow ml-4">${donator.name || 'Анонім'}</span>
+                        <span class="font-bold text-lg text-yo-green">$${donator.amount.toFixed(2)}</span>
+                    `;
+                    donatorsList.appendChild(li);
+                });
+            }
+        }
+
+        /**
+         * Handles submission of a custom donation amount.
+         */
+        function handleCustomDonate() {
+            const customAmountInput = document.getElementById('custom-donation-amount');
+            let amount = parseFloat(customAmountInput.value); // Parse the input value as a float
+
+            if (isNaN(amount) || amount < 1) {
+                showModal("Будь ласка, введіть коректну суму донату (від $1).");
+                return;
+            }
+            if (amount > 10000000) { // Arbitrary high limit to prevent absurd inputs
+                showModal("Максимальна сума для ручного вводу - $10,000+. Якщо ви хочете донатити більше, будь ласка, зверніться до мене напряму.");
+                return;
+            }
+            // Ensure amount is formatted to 2 decimal places for consistency
+            amount = parseFloat(amount.toFixed(2));
+            handleDonate(amount); // Call the main donation handler
+        }
+
+        /**
+         * Simulates a download action for a purchased item.
+         * @param {string} item - The ID or name of the item to download.
+         * @param {string} type - The type of item (e.g., 'photo', 'video').
+         */
+        function downloadItem(item, type) {
+            showModal(`Завантаження ${type === 'photo' ? 'фото' : 'відео'} "${item}"...`);
+            // In a real application, this would trigger an actual file download, e.g.:
+            // window.location.href = `/api/download/${item}`;
+        }
+
+        /**
+         * Manages page visibility and active navigation links.
+         * Also controls sidebar state and main content dimming.
+         * @param {string} pageId - The ID of the page to show (e.g., 'home', 'buy-photo').
+         */
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            const navLinks = document.querySelectorAll('#sidebar a');
+            const sidebar = document.getElementById('sidebar');
+            const burgerIcon = document.getElementById('burger-icon');
+            const contentOverlay = document.getElementById('content-overlay');
+            const mainContent = document.getElementById('content-area');
+
+            // Hide all pages and remove active state from navigation links
+            pages.forEach(page => {
+                page.classList.add('hidden');
+                page.classList.remove('active');
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('text-yo-red', 'active-link');
+                link.classList.add('text-yo-white');
+            });
+
+            // Show the target page and mark its corresponding navigation link as active
+            const targetPage = document.getElementById(`${pageId}-page`);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                targetPage.classList.add('active');
+                currentPage = pageId; // Update global current page variable
+            } else {
+                console.error(`Сторінку з ID '${pageId}-page' не знайдено.`);
+                return; // Exit if page not found
+            }
+
+            const activeNavLink = document.getElementById(`nav-${pageId}`);
+            if (activeNavLink) {
+                activeNavLink.classList.add('text-yo-red', 'active-link');
+            }
+
+            // Close sidebar and remove content dimming when a page is selected
+            sidebar.classList.remove('open');
+            burgerIcon.classList.remove('open');
+            contentOverlay.classList.remove('active');
+            mainContent.classList.remove('dim-content');
+
+            // Set dynamic background gradient based on the current page
+            let newBgGradient = 'from-indigo-900 to-purple-900'; // Default for home
+            if (pageId === 'buy-photo') {
+                newBgGradient = 'from-pink-700 to-purple-800';
+            } else if (pageId === 'buy-video') {
+                newBgGradient = 'from-green-700 to-blue-800';
+            } else if (pageId === 'order-photoshoot') {
+                newBgGradient = 'from-red-700 to-rose-800';
+            } else if (pageId === 'support') {
+                newBgGradient = 'from-fuchsia-700 to-purple-800';
+            } else if (pageId === 'donate') {
+                newBgGradient = 'from-red-800 to-black';
+            } else if (pageId === 'admin') {
+                newBgGradient = 'from-gray-700 to-gray-900';
+            }
+
+            // Update body background classes
+            document.body.className = document.body.className.split(' ').filter(c => !c.startsWith('bg-gradient-to-') && !c.startsWith('from-') && !c.startsWith('to-')).join(' ');
+            document.body.classList.add('font-inter', 'text-white', 'min-h-screen', 'transition-all', 'duration-500', 'bg-gradient-to-br', ...newBgGradient.split(' '), 'overflow-x-hidden');
+
+            // Update admin page content if it's the admin page
+            if (pageId === 'admin') {
+                const adminContentPlaceholder = document.getElementById('admin-content-placeholder');
+                if (adminContentPlaceholder) {
+                    adminContentPlaceholder.innerHTML = `
+                        <p class="text-center text-gray-400">
+                            <i class="fas fa-lock text-5xl mb-4 text-yo-red"></i><br />
+                            У вас немає доступу до цієї сторінки. <br />
+                            (Ця версія сайту не має системи автентифікації. Щоб отримати доступ до адмін-панелі, потрібен повноцінний бекенд.)
+                        </p>
+                    `;
+                }
+            }
+        }
+
+
+        // Event listener for when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize the homepage display
+            showPage(currentPage);
+
+            // Get references to DOM elements for sidebar functionality
+            const burgerIcon = document.getElementById('burger-icon');
+            const sidebar = document.getElementById('sidebar');
+            const contentOverlay = document.getElementById('content-overlay');
+            const mainContent = document.getElementById('content-area');
+
+            // Toggle sidebar, burger icon animation, overlay, and main content dimming
+            burgerIcon.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                burgerIcon.classList.toggle('open');
+                contentOverlay.classList.toggle('active');
+                mainContent.classList.toggle('dim-content');
+            });
+
+            // Close sidebar when clicking on the overlay
+            contentOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                burgerIcon.classList.remove('open');
+                contentOverlay.classList.remove('active');
+                mainContent.classList.remove('dim-content');
+            });
+
+            // Add click listeners to all navigation links in the sidebar
+            const navLinks = document.querySelectorAll('#sidebar a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent default link behavior (page reload)
+                    const pageId = e.target.dataset.page; // Get the target page ID from data-page attribute
+                    showPage(pageId); // Navigate to the selected page
+                });
+            });
+
+            // Add click listeners for buttons on the Home page to navigate to other sections
+            const btnShowBuyPhoto = document.getElementById('btn-show-buy-photo');
+            if (btnShowBuyPhoto) {
+                btnShowBuyPhoto.addEventListener('click', () => showPage('buy-photo'));
+            }
+
+            const btnShowDonateHome = document.getElementById('btn-show-donate-home');
+            if (btnShowDonateHome) {
+                btnShowDonateHome.addEventListener('click', () => showPage('donate'));
+            }
+
+            // Add click listeners for fixed-amount donation buttons
+            const fixedDonateButtons = document.querySelectorAll('.donate-button-fixed');
+            fixedDonateButtons.forEach(button => {
+                const amount = parseFloat(button.dataset.amount);
+                if (!isNaN(amount)) {
+                    button.addEventListener('click', () => handleDonate(amount));
+                }
+            });
+
+            // Add click listener for the custom donation button
+            const btnCustomDonate = document.getElementById('btn-custom-donate');
+            if (btnCustomDonate) {
+                btnCustomDonate.addEventListener('click', handleCustomDonate);
+            }
+
+            // Add click listener for the "Order Photoshoot" button
+            const btnOrderPhotoshoot = document.getElementById('btn-order-photoshoot');
+            if (btnOrderPhotoshoot) {
+                btnOrderPhotoshoot.addEventListener('click', () => showModal('Ваш запит на фотосесію надіслано! Я зв\'яжуся з вами незабаром для підтвердження.'));
+            }
+
+            // Add click listener for the modal close button
+            const modalCloseButton = document.getElementById('modal-close-button');
+            if (modalCloseButton) {
+                modalCloseButton.addEventListener('click', closeModal);
+            }
+
+            // Scroll-to-Top button functionality
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            window.addEventListener('scroll', () => {
+                // Show/hide button based on scroll position
+                if (window.scrollY > 200) {
+                    scrollToTopBtn.classList.remove('hidden');
+                } else {
+                    scrollToTopBtn.classList.add('hidden');
+                }
+            });
+
+            // Scroll to top on button click
+            scrollToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth' // Smooth scrolling animation
+                });
+            });
+
+            // Video hover effect: play/pause on mouse enter/leave
+            document.querySelectorAll('.video-container video').forEach(video => {
+                video.addEventListener('mouseenter', () => {
+                    video.play();
+                });
+                video.addEventListener('mouseleave', () => {
+                    video.pause();
+                    // video.currentTime = 0; // Optional: reset video to start
+                });
+            });
+
+            // Simulate currency conversion for demonstration purposes
+            function updateCurrencyDisplays() {
+                const exchangeRate = 36.9; // Example UAH to USD rate (can be dynamic in a real app)
+                document.querySelectorAll('[data-currency-usd]').forEach(element => {
+                    const usdPrice = parseFloat(element.dataset.currencyUsd);
+                    if (!isNaN(usdPrice)) {
+                        const uahPrice = (usdPrice * exchangeRate).toFixed(0); // Convert to UAH and round
+                        element.innerHTML = `<span class="text-2xl font-bold text-yo-green">$${usdPrice.toFixed(2)}</span><br><span class="text-sm text-gray-400">~${uahPrice} UAH</span>`;
+                    }
+                });
+            }
+            updateCurrencyDisplays(); // Call on load
+
+            // Buy/Download button logic for photo/video items
+            document.querySelectorAll('.buy-download-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const item = e.target.dataset.item; // Get item ID
+                    const type = e.target.dataset.type; // Get item type
+
+                    if (e.target.textContent.includes('Купити')) {
+                        // Simulate purchase action
+                        showModal(`Ви успішно придбали ${type === 'photo' ? 'фото' : 'відео'} "${item}"!`);
+                        e.target.textContent = `Завантажити ${type === 'photo' ? 'фото' : 'відео'}`; // Change button text
+                        // Update button styling after "purchase"
+                        e.target.classList.remove('bg-black', 'hover:bg-white', 'border-white');
+                        e.target.classList.add('bg-green-600', 'hover:bg-green-700', 'text-white', 'border-green-600');
+                    } else if (e.target.textContent.includes('Завантажити')) {
+                        // Simulate download action
+                        downloadItem(item, type);
+                    }
+                });
+            });
+
+            // Support form submission logic
+            const supportForm = document.getElementById('support-form');
+            if (supportForm) {
+                supportForm.addEventListener('submit', (e) => {
+                    e.preventDefault(); // Prevent default form submission
+                    const name = document.getElementById('support-name').value;
+                    const problem = document.getElementById('support-problem').value;
+                    if (name && problem) {
+                        showModal(`Дякую, ${name}! Ваш запит прийнято. Я зв'яжуся з вами щодо проблеми: "${problem.substring(0, 50)}..."`);
+                        supportForm.reset(); // Clear form fields
+                    } else {
+                        showModal('Будь ласка, заповніть усі поля форми підтримки.');
+                    }
+                });
+            }
+
+            // Calendar functionality for "Order Photoshoot" page
+            const calendarDays = document.querySelectorAll('.calendar-day');
+            const selectedDateDisplay = document.getElementById('selected-date');
+            // Assuming one day is selected by default in HTML for initial display
+            let selectedDayElement = document.querySelector('.calendar-day.selected-day');
+
+            calendarDays.forEach(day => {
+                day.addEventListener('click', () => {
+                    // Remove selection from previously selected day
+                    if (selectedDayElement) {
+                        selectedDayElement.classList.remove('selected-day', 'border-2', 'border-yo-red');
+                    }
+                    // Add selection to the newly clicked day
+                    day.classList.add('selected-day', 'border-2', 'border-yo-red');
+                    selectedDayElement = day; // Update reference to selected day
+
+                    // Update the displayed selected date text
+                    const dateValue = day.dataset.date;
+                    const dateParts = dateValue.split('-');
+                    const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); // Month is 0-indexed
+                    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                    selectedDateDisplay.textContent = date.toLocaleDateString('uk-UA', options);
+                });
+            });
+
+            // Initial call to update donators list (empty for this static version, but function exists)
+            updateTopDonatorsList('', 0); // Initialize an empty list
+        });
+    </script>
+</body>
+</html>
