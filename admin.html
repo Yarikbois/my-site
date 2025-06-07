@@ -1,2 +1,69 @@
-<h1>Вітаю в адмін-панелі, Ярославе!</h1>
-<p>Тут будуть кнопки додавання фото, відео, редагування сторінок.</p>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Адмін-панель YarikOgraf</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "ТУТ_ТВІЙ_API_KEY",
+      authDomain: "ТВОЄ_ПРОЄКТ.firebaseapp.com",
+      projectId: "ТВОЄ_ПРОЄКТ",
+      storageBucket: "ТВОЄ_ПРОЄКТ.appspot.com",
+      messagingSenderId: "номер",
+      appId: "App ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+
+<body>
+  <h1>Вітаю в адмін-панелі, Ярославе!</h1>
+  <p>Тут будуть кнопки додавання фото, відео, редагування сторінок.</p>
+
+  <h3>Завантажити фото/відео:</h3>
+  <input type="file" id="fileUpload">
+  <button onclick="uploadFile()">Завантажити</button>
+  <div id="uploadResult"></div>
+
+  <h3>Кнопки сайту:</h3>
+  <a href="index.html">Повернутися на головну</a>
+
+  <script>
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (!user || user.email !== "yarikphoto26@gmail.com") {
+        window.location.href = "login.html";
+      }
+    });
+
+    function uploadFile() {
+      const file = document.getElementById("fileUpload").files[0];
+      if (!file) {
+        alert("Спочатку обери файл!");
+        return;
+      }
+
+      const storageRef = firebase.storage().ref("media/" + file.name);
+      const uploadTask = storageRef.put(file);
+
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          document.getElementById("uploadResult").innerText = "Завантажено: " + progress.toFixed(0) + "%";
+        },
+        (error) => {
+          alert("Помилка: " + error);
+        },
+        () => {
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            document.getElementById("uploadResult").innerHTML = "Файл завантажено.<br>Посилання: <a href='" + downloadURL + "' target='_blank'>" + downloadURL + "</a>";
+          });
+        }
+      );
+    }
+  </script>
+</body>
+</html>
