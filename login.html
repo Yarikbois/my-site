@@ -1,5 +1,76 @@
-<form id="loginForm">
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Пароль">
-  <button type="submit">Увійти</button>
-</form>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Вхід в адмінку</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "ТУТ_ТВІЙ_API_KEY",
+      authDomain: "ТВОЄ_ПРОЄКТ.firebaseapp.com",
+      projectId: "ТВОЄ_ПРОЄКТ",
+      storageBucket: "ТВОЄ_ПРОЄКТ.appspot.com",
+      messagingSenderId: "номер",
+      appId: "App ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    input {
+      padding: 10px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #D41811;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Вхід в адмін-панель</h1>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email"><br>
+    <input type="password" id="password" placeholder="Пароль"><br>
+    <button type="submit">Увійти</button>
+  </form>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        if (user.email === "yarikphoto26@gmail.com") {
+          window.location.href = "admin.html";
+        } else {
+          alert("Відмовлено у доступі!");
+          firebase.auth().signOut();
+        }
+      })
+      .catch((error) => {
+        alert("Помилка входу: " + error.message);
+      });
+    });
+  </script>
+</body>
+</html>
