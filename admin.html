@@ -455,6 +455,35 @@
             button.disabled = false;
             button.textContent = 'Pay Now'; // Reset button text if payment is handled by redirect
         }
+function convertDriveLink(originalLink, type = 'image') {
+  // Витягуємо ID файлу з посилання
+  const regex = /\/d\/(.*?)\//;
+  const match = originalLink.match(regex);
+
+  if (!match || !match[1]) {
+    alert("Невірне посилання на Google Drive!");
+    return null;
+  }
+
+  const fileId = match[1];
+
+  // Формуємо прямий лінк в залежності від типу контенту
+  if (type === 'image') {
+    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+  } else if (type === 'video') {
+    return `https://drive.google.com/uc?export=download&id=${fileId}`;
+  } else {
+    return null;
+  }
+}
+
+// 📌 Приклад використання:
+const gDriveLink = "https://drive.google.com/file/d/1A2B3C4D5E6F7G8H9I0J/view?usp=sharing";
+const directImageLink = convertDriveLink(gDriveLink, 'image');
+const directVideoLink = convertDriveLink(gDriveLink, 'video');
+
+console.log("Прямий лінк на фото:", directImageLink);
+console.log("Прямий лінк на відео:", directVideoLink);
 
         // Handle download
         function handleDownload(event) {
