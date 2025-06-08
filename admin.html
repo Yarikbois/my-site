@@ -1,69 +1,486 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Адмін-панель YarikOgraf</title>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "ТУТ_ТВІЙ_API_KEY",
-      authDomain: "ТВОЄ_ПРОЄКТ.firebaseapp.com",
-      projectId: "ТВОЄ_ПРОЄКТ",
-      storageBucket: "ТВОЄ_ПРОЄКТ.appspot.com",
-      messagingSenderId: "номер",
-      appId: "App ID"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
-</head>
-
-<body>
-  <h1>Вітаю в адмін-панелі, Ярославе!</h1>
-  <p>Тут будуть кнопки додавання фото, відео, редагування сторінок.</p>
-
-  <h3>Завантажити фото/відео:</h3>
-  <input type="file" id="fileUpload">
-  <button onclick="uploadFile()">Завантажити</button>
-  <div id="uploadResult"></div>
-
-  <h3>Кнопки сайту:</h3>
-  <a href="index.html">Повернутися на головну</a>
-
-  <script>
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (!user || user.email !== "yarikphoto26@gmail.com") {
-        window.location.href = "login.html";
-      }
-    });
-
-    function uploadFile() {
-      const file = document.getElementById("fileUpload").files[0];
-      if (!file) {
-        alert("Спочатку обери файл!");
-        return;
-      }
-
-      const storageRef = firebase.storage().ref("media/" + file.name);
-      const uploadTask = storageRef.put(file);
-
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          document.getElementById("uploadResult").innerText = "Завантажено: " + progress.toFixed(0) + "%";
-        },
-        (error) => {
-          alert("Помилка: " + error);
-        },
-        () => {
-          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-            document.getElementById("uploadResult").innerHTML = "Файл завантажено.<br>Посилання: <a href='" + downloadURL + "' target='_blank'>" + downloadURL + "</a>";
-          });
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YarikOgraf Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://secure.wayforpay.com/server/pay-widget.js"></script>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --dark-text: #343a40;
+            --border-color: #dee2e6;
+            --card-bg: #ffffff;
         }
-      );
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box; /* Ensures padding doesn't affect total width */
+            font-size: 16px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 17px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+
+        .gallery-section {
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 30px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .gallery-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gallery-item img,
+        .gallery-item video {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-item-content {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gallery-item h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1.3em;
+        }
+
+        .gallery-item p {
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            color: var(--dark-text);
+        }
+
+        .gallery-item .price {
+            font-weight: 700;
+            color: var(--success-color);
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .payment-section {
+            margin-top: auto; /* Pushes payment section to the bottom */
+            padding-top: 15px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .payment-section label {
+            font-weight: 400;
+            margin-bottom: 5px;
+        }
+
+        .payment-section input[type="email"] {
+            margin-bottom: 10px;
+        }
+
+        .download-btn {
+            background-color: var(--success-color);
+            margin-top: 10px;
+        }
+
+        .download-btn:hover {
+            background-color: #218838;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px auto;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                width: 100%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>YarikOgraf Admin Panel</h1>
+
+        <section id="upload-section">
+            <h2>Upload New Item</h2>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="fileInput">Photo/Video File:</label>
+                    <input type="file" id="fileInput" accept="image/*,video/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="descriptionInput">Description:</label>
+                    <textarea id="descriptionInput" placeholder="Enter a description for the file" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="priceInput">Price (UAH):</label>
+                    <input type="number" id="priceInput" step="0.01" min="0" placeholder="e.g., 100.00" required>
+                </div>
+                <button type="submit">Upload Item</button>
+            </form>
+            <div id="uploadMessage" class="message" style="display: none;"></div>
+        </section>
+
+        <section class="gallery-section">
+            <h2>Gallery Items</h2>
+            <div id="galleryGrid" class="gallery-grid">
+                </div>
+        </section>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const descriptionInput = document.getElementById('descriptionInput');
+        const priceInput = document.getElementById('priceInput');
+        const galleryGrid = document.getElementById('galleryGrid');
+        const uploadMessage = document.getElementById('uploadMessage');
+
+        // This array will simulate your database for gallery items
+        let galleryItems = [];
+
+        // WayForPay Merchant Account ID (provided by user)
+        const WAYFORPAY_MERCHANT_ACCOUNT = '22fa25a88590bae73aaf215717ff6c5ce66a8805';
+
+        // Function to display messages
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Function to render gallery items
+        function renderGallery() {
+            galleryGrid.innerHTML = ''; // Clear existing items
+            galleryItems.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'gallery-item';
+                itemDiv.dataset.id = item.id;
+
+                let mediaElement;
+                if (item.type.startsWith('image')) {
+                    mediaElement = `<img src="${item.url}" alt="${item.description}">`;
+                } else if (item.type.startsWith('video')) {
+                    mediaElement = `<video controls src="${item.url}"></video>`;
+                }
+
+                itemDiv.innerHTML = `
+                    ${mediaElement}
+                    <div class="gallery-item-content">
+                        <h3>${item.fileName}</h3>
+                        <p>${item.description}</p>
+                        <p class="price">${item.price.toFixed(2)} UAH</p>
+                        <div class="payment-section">
+                            <label for="email-${item.id}">Your Email:</label>
+                            <input type="email" id="email-${item.id}" placeholder="Enter your email" required>
+                            <button class="pay-button" data-item-id="${item.id}">Pay Now</button>
+                            <button class="download-btn" data-item-id="${item.id}" style="display: none;">Download</button>
+                        </div>
+                    </div>
+                `;
+                galleryGrid.appendChild(itemDiv);
+            });
+
+            // Add event listeners for pay buttons
+            document.querySelectorAll('.pay-button').forEach(button => {
+                button.addEventListener('click', handlePayment);
+            });
+
+            // Add event listeners for download buttons (initially hidden)
+            document.querySelectorAll('.download-btn').forEach(button => {
+                button.addEventListener('click', handleDownload);
+            });
+        }
+
+        // Handle file upload
+        uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const file = fileInput.files[0];
+            const description = descriptionInput.value;
+            const price = parseFloat(priceInput.value);
+
+            if (!file) {
+                showMessage(uploadMessage, 'Please select a file to upload.', 'error');
+                return;
+            }
+            if (isNaN(price) || price <= 0) {
+                showMessage(uploadMessage, 'Please enter a valid price.', 'error');
+                return;
+            }
+
+            // Simulate file storage: In a real app, you'd send this to a server
+            const fileUrl = URL.createObjectURL(file); // For local preview
+            const fileName = file.name;
+            const fileType = file.type;
+
+            const newItem = {
+                id: Date.now().toString(), // Unique ID for the item
+                fileName: fileName,
+                type: fileType,
+                url: fileUrl, // This will be a temporary URL
+                description: description,
+                price: price,
+                paid: false // Track payment status
+            };
+
+            galleryItems.push(newItem);
+            renderGallery();
+
+            // Clear form
+            uploadForm.reset();
+            showMessage(uploadMessage, 'Item uploaded successfully and added to gallery!', 'success');
+        });
+
+        // Simulate WayForPay payment processingfunction handlePayment(event) {
+  const button = event.target;
+  const itemId = button.dataset.itemId;
+  const item = galleryItems.find(i => i.id === itemId);
+  const emailInput = document.getElementById(`email-${itemId}`);
+  const userEmail = emailInput.value;
+
+  if (!userEmail || !userEmail.includes('@')) {
+    alert('Будь ласка, введіть коректний Email.');
+    return;
+  }
+
+  if (!item) {
+    alert('Файл не знайдено.');
+    return;
+  }
+
+  var wayforpay = new Wayforpay();
+  wayforpay.run({
+    merchantAccount: "22fa25a88590bae73aaf215717ff6c5ce66a8805",
+    amount: item.price,
+    currency: "UAH",
+    orderReference: "order_" + Date.now(),
+    orderDate: Date.now(),
+    productName: item.fileName,
+    productPrice: item.price,
+    productCount: 1,
+    clientEmail: userEmail
+  },
+  function() {
+    // після успішної оплати
+    item.paid = true;
+    renderGallery(); // оновлюємо галерею
+
+    const itemElement = document.querySelector(`.gallery-item[data-id="${itemId}"]`);
+    if (itemElement) {
+      const payButton = itemElement.querySelector('.pay-button');
+      const emailField = itemElement.querySelector(`input[type="email"]`);
+      const downloadButton = itemElement.querySelector('.download-btn');
+
+      if (payButton) payButton.style.display = 'none';
+      if (emailField) emailField.style.display = 'none';
+      if (downloadButton) downloadButton.style.display = 'inline-block';
     }
-  </script>
+
+    alert(`Оплата за "${item.fileName}" пройшла успішно!`);
+  });
+}
+        async function handlePayment(event) {
+            const button = event.target;
+            const itemId = button.dataset.itemId;
+            const item = galleryItems.find(i => i.id === itemId);
+            const emailInput = document.getElementById(`email-${itemId}`);
+            const userEmail = emailInput.value;
+
+            if (!userEmail || !userEmail.includes('@')) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            if (!item) {
+                alert('Error: Item not found.');
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = 'Processing...';
+
+            // *** IMPORTANT: This is a SIMULATED payment. ***
+            // In a real application, you would:
+            // 1. Send an AJAX request to your server with item details and user email.
+            // 2. Your server would then generate a WayForPay payment form or redirect
+            //    using the WayForPay API (e.g., WayForPay `data-wfp-btn` attributes
+            //    or direct API calls).
+            // 3. WayForPay would handle the payment.
+            // 4. WayForPay would send a callback to your server upon success/failure.
+            // 5. Your server would then update the payment status in your database
+            //    and notify the client (e.g., via websockets or subsequent page load).
+
+            console.log(`Simulating payment for item: ${item.fileName}, Price: ${item.price}, Email: ${userEmail}`);
+            console.log(`Merchant Account ID: ${WAYFORPAY_MERCHANT_ACCOUNT}`);
+
+            // Simulate a delay for payment processing
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Simulate successful payment
+            item.paid = true;
+            renderGallery(); // Re-render to show download button
+
+            const itemElement = document.querySelector(`.gallery-item[data-id="${itemId}"]`);
+            if (itemElement) {
+                const payButton = itemElement.querySelector('.pay-button');
+                const emailField = itemElement.querySelector(`input[type="email"]`);
+                const downloadButton = itemElement.querySelector('.download-btn');
+
+                if (payButton) payButton.style.display = 'none';
+                if (emailField) emailField.style.display = 'none';
+                if (downloadButton) downloadButton.style.display = 'inline-block';
+
+                alert(`Payment for "${item.fileName}" successful! You can now download your file.`);
+            }
+
+            button.disabled = false;
+            button.textContent = 'Pay Now'; // Reset button text if payment is handled by redirect
+        }
+
+        // Handle download
+        function handleDownload(event) {
+            const button = event.target;
+            const itemId = button.dataset.itemId;
+            const item = galleryItems.find(i => i.id === itemId);
+
+            if (!item || !item.paid) {
+                alert('Error: File not available for download or payment not confirmed.');
+                return;
+            }
+
+            // In a real application, this would be a secure, expiring download link
+            // from your server, after verifying the payment and user.
+            const a = document.createElement('a');
+            a.href = item.url;
+            a.download = item.fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            alert(`Downloading "${item.fileName}"...`);
+        }
+
+        // Initial render of gallery (in case there are pre-existing items, or for testing)
+        renderGallery();
+    </script>
 </body>
 </html>
