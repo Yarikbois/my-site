@@ -2,16 +2,16 @@
 
 /* General Body Styles */
 body {
-  font-family: Arial, sans-serif; /* Fallback font */
-  background-color: #f0f0f0; /* Light gray background */
+  font-family: 'Inter', sans-serif; /* Fallback font */
+  background-color: #1a1a1a; /* Dark gray background for consistency */
   margin: 0; /* Remove default body margin */
   text-align: center; /* Center text globally (can be overridden by Tailwind) */
-  color: #333; /* Dark text color */
+  color: #e0e0e0; /* Light text color for dark background */
 }
 
-/* Header Styles */
+/* Header Styles (now mostly handled by Tailwind in HTML) */
 header {
-  background-color: #222; /* Dark background for header */
+  background-color: #0d0d0d; /* Even darker for header */
   color: #fff; /* White text color */
   padding: 30px; /* Padding inside the header */
 }
@@ -39,7 +39,7 @@ button {
   margin: 10px;
   border: none;
   border-radius: 8px;
-  background-color: #007bff; /* Primary blue button color */
+  background-color: #D41811; /* Primary red button color */
   color: white;
   font-size: 18px;
   cursor: pointer;
@@ -47,21 +47,86 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: #a3100c; /* Darker red on hover */
 }
 
 /* Footer Styles */
 footer {
-  background-color: #222; /* Dark background for footer */
+  background-color: #0d0d0d; /* Dark background for footer */
   color: #fff; /* White text color */
-  padding: 20px; /* Padding inside the footer */
-  margin-top: 50px; /* Space above the footer */
+  padding: 20px;
+  margin-top: 50px;
 }
 
-/* Additional specific styles if needed for elements not covered by Tailwind or general rules */
-/* Example:
-.some-custom-class {
-    border: 1px solid #ccc;
-    padding: 10px;
+/* Calendar Specific Styles */
+.calendar {
+    background-color: #2a2a2a; /* Slightly lighter dark for calendar background */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
-*/
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: #e0e0e0;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+    color: #b0b0b0;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-day {
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #3a3a3a; /* Darker background for individual days */
+    color: #e0e0e0;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    min-height: 40px; /* Ensure consistent height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-day:hover {
+    background-color: #4a4a4a;
+}
+
+.calendar-day.has-donations {
+    background-color: #D41811; /* Brand red for days with donations */
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-day.selected-day {
+    border: 2px solid #D41811; /* Highlight selected day */
+    box-shadow: 0 0 8px rgba(212, 24, 17, 0.5);
+    background-color: #D41811; /* Ensure selected day remains red if it has donations */
+    color: white;
+}
+
+/* Ensure the selected day remains visually distinct even if it also has donations */
+.calendar-day.selected-day.has-donations {
+    background-color: #D41811;
+    border-color: #ffdddd; /* Slightly different border to show it's selected */
+}
+
+/* Utility for selected border color if not using Tailwind's arbitrary values */
+.border-yo-red {
+    border-color: #D41811 !important;
+}
