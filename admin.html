@@ -1,11 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YarikOgraf Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://secure.wayforpay.com/server/pay-widget.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"></script> <script>
+        // !! IMPORTANT !!
+        // Replace these with your actual Firebase project configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY", // <--- REPLACE THIS
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // <--- REPLACE THIS
+            projectId: "YOUR_PROJECT_ID", // <--- REPLACE THIS
+            storageBucket: "YOUR_PROJECT_ID.appspot.com", // <--- REPLACE THIS
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <--- REPLACE THIS
+            appId: "YOUR_APP_ID" // <--- REPLACE THIS
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore(); // Initialize Firestore
+        const storage = firebase.storage(); // Initialize Storage
+    </script>
+
+    <script src="https://secure.wayforpay.com/server/pay-widget.js"></script>
+
     <style>
         :root {
             --primary-color: #007bff;
@@ -16,6 +40,7 @@
             --dark-text: #343a40;
             --border-color: #dee2e6;
             --card-bg: #ffffff;
+            --header-yo-red: #D41811; /* From index.html */
         }
 
         body {
@@ -30,486 +55,566 @@
         .container {
             max-width: 900px;
             margin: 20px auto;
-            background-color: var(--card-bg);
-            padding: 30px;
+            background: var(--card-bg);
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         h1, h2 {
-            text-align: center;
-            color: var(--primary-color);
-            margin-bottom: 25px;
-        }
-
-        .form-group {
+            color: var(--dark-text);
             margin-bottom: 20px;
         }
 
-        label {
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 700;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
 
-        input[type="text"],
-        input[type="number"],
-        input[type="file"],
-        textarea {
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="file"],
+        .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            box-sizing: border-box; /* Ensures padding doesn't affect total width */
-            font-size: 16px;
-        }
-
-        input[type="file"] {
             padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box; /* Ensures padding doesn't increase total width */
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 80px;
+        .form-group input[type="checkbox"] {
+            margin-right: 5px;
         }
 
-        button {
+        .btn {
             display: inline-block;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 12px 25px;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 17px;
-            transition: background-color 0.3s ease;
+            font-size: 16px;
+            transition: background-color 0.2s ease-in-out;
+            text-decoration: none; /* For link-buttons */
+            color: white; /* Default text color for buttons */
         }
 
-        button:hover {
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
             background-color: #0056b3;
         }
 
-        button:disabled {
-            background-color: var(--secondary-color);
-            cursor: not-allowed;
+        .btn-success {
+            background-color: var(--success-color);
         }
 
-        .gallery-section {
-            margin-top: 40px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 30px;
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
         }
 
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
         }
 
         .gallery-item {
-            background-color: var(--card-bg);
+            background: var(--light-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            display: flex;
-            flex-direction: column;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            text-align: center;
         }
 
         .gallery-item img,
         .gallery-item video {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            display: block;
+            max-width: 100%;
+            height: 180px; /* Fixed height for consistency */
+            object-fit: cover; /* Crop to fit */
+            border-radius: 4px;
+            margin-bottom: 10px;
         }
 
-        .gallery-item-content {
-            padding: 15px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .gallery-item h3 {
+        .gallery-item h4 {
             margin-top: 0;
             margin-bottom: 10px;
-            color: var(--primary-color);
-            font-size: 1.3em;
-        }
-
-        .gallery-item p {
-            margin-bottom: 10px;
-            font-size: 0.95em;
+            font-size: 1.2em;
             color: var(--dark-text);
         }
 
-        .gallery-item .price {
-            font-weight: 700;
-            color: var(--success-color);
-            font-size: 1.1em;
-            margin-bottom: 15px;
-        }
-
-        .payment-section {
-            margin-top: auto; /* Pushes payment section to the bottom */
-            padding-top: 15px;
-            border-top: 1px dashed var(--border-color);
-        }
-
-        .payment-section label {
-            font-weight: 400;
-            margin-bottom: 5px;
-        }
-
-        .payment-section input[type="email"] {
+        .gallery-item p {
+            font-size: 0.9em;
+            color: #666;
             margin-bottom: 10px;
         }
 
-        .download-btn {
-            background-color: var(--success-color);
-            margin-top: 10px;
+        .gallery-item .actions button {
+            margin: 5px;
         }
 
-        .download-btn:hover {
-            background-color: #218838;
-        }
-
-        .message {
-            margin-top: 20px;
-            padding: 15px;
+        .logout-btn {
+            background-color: var(--header-yo-red); /* Using the red from index.html */
+            color: white;
+            padding: 8px 15px;
             border-radius: 5px;
-            font-weight: 700;
-            text-align: center;
+            float: right; /* Position it to the right */
+            margin-top: -50px; /* Adjust as needed to align with H1 */
         }
-
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                margin: 10px auto;
-            }
-
-            .gallery-grid {
-                grid-template-columns: 1fr;
-            }
-
-            button {
-                width: 100%;
-                padding: 15px;
-            }
+        .logout-btn:hover {
+            background-color: #a9130d;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>YarikOgraf Admin Panel</h1>
+        <button id="logoutBtn" class="btn logout-btn">Вийти</button>
+        <h1>Адмін панель YarikOgraf</h1>
 
-        <section id="upload-section">
-            <h2>Upload New Item</h2>
-            <form id="uploadForm">
+        <section>
+            <h2>Додати/Редагувати елемент галереї</h2>
+            <form id="galleryForm">
+                <input type="hidden" id="itemId" value="">
                 <div class="form-group">
-                    <label for="fileInput">Photo/Video File:</label>
-                    <input type="file" id="fileInput" accept="image/*,video/*" required>
+                    <label for="itemTitle">Назва:</label>
+                    <input type="text" id="itemTitle" required>
                 </div>
                 <div class="form-group">
-                    <label for="descriptionInput">Description:</label>
-                    <textarea id="descriptionInput" placeholder="Enter a description for the file" required></textarea>
+                    <label for="itemDescription">Опис:</label>
+                    <textarea id="itemDescription"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="priceInput">Price (UAH):</label>
-                    <input type="number" id="priceInput" step="0.01" min="0" placeholder="e.g., 100.00" required>
+                    <label for="itemPrice">Ціна (грн):</label>
+                    <input type="number" id="itemPrice" step="0.01" min="0" required>
                 </div>
-                <button type="submit">Upload Item</button>
+                <div class="form-group">
+                    <label for="itemFile">Файл (фото/відео):</label>
+                    <input type="file" id="itemFile" accept="image/*,video/*">
+                    <p class="text-sm text-gray-500 mt-1">
+                        Або вставте Google Drive URL (для вже завантажених файлів):
+                    </p>
+                    <input type="text" id="itemDriveUrl" placeholder="Google Drive URL">
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="itemPaid">
+                    <label for="itemPaid">Оплачено (для тестових завантажень)</label>
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitBtn">Додати елемент</button>
+                <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="display:none;">Відмінити редагування</button>
             </form>
-            <div id="uploadMessage" class="message" style="display: none;"></div>
         </section>
 
-        <section class="gallery-section">
-            <h2>Gallery Items</h2>
-            <div id="galleryGrid" class="gallery-grid">
-                </div>
+        <section>
+            <h2>Елементи галереї</h2>
+            <div id="galleryList" class="gallery-grid">
+                <p class="text-center text-gray-500 col-span-full" id="noItemsMessage">Завантажте перші елементи галереї.</p>
+            </div>
         </section>
     </div>
 
     <script>
-        const uploadForm = document.getElementById('uploadForm');
-        const fileInput = document.getElementById('fileInput');
-        const descriptionInput = document.getElementById('descriptionInput');
-        const priceInput = document.getElementById('priceInput');
-        const galleryGrid = document.getElementById('galleryGrid');
-        const uploadMessage = document.getElementById('uploadMessage');
-
-        // This array will simulate your database for gallery items
-        let galleryItems = [];
-
-        // WayForPay Merchant Account ID (provided by user)
-        const WAYFORPAY_MERCHANT_ACCOUNT = '22fa25a88590bae73aaf215717ff6c5ce66a8805';
-
-        // Function to display messages
-        function showMessage(element, message, type) {
-            element.textContent = message;
-            element.className = `message ${type}`;
-            element.style.display = 'block';
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 5000);
-        }
-
-        // Function to render gallery items
-        function renderGallery() {
-            galleryGrid.innerHTML = ''; // Clear existing items
-            galleryItems.forEach((item, index) => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'gallery-item';
-                itemDiv.dataset.id = item.id;
-
-                let mediaElement;
-                if (item.type.startsWith('image')) {
-                    mediaElement = `<img src="${item.url}" alt="${item.description}">`;
-                } else if (item.type.startsWith('video')) {
-                    mediaElement = `<video controls src="${item.url}"></video>`;
+        // Check authentication status
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in. Check if they are the admin.
+                if (user.email !== "yarikphoto26@gmail.com") { // Still using hardcoded email for this example
+                    alert("У вас немає прав доступу до цієї сторінки. Ви будете перенаправлені.");
+                    auth.signOut().then(() => {
+                        window.location.href = "login.html";
+                    });
+                } else {
+                    console.log("Admin user logged in:", user.email);
+                    loadGalleryItems(); // Load items only if admin
                 }
-
-                itemDiv.innerHTML = `
-                    ${mediaElement}
-                    <div class="gallery-item-content">
-                        <h3>${item.fileName}</h3>
-                        <p>${item.description}</p>
-                        <p class="price">${item.price.toFixed(2)} UAH</p>
-                        <div class="payment-section">
-                            <label for="email-${item.id}">Your Email:</label>
-                            <input type="email" id="email-${item.id}" placeholder="Enter your email" required>
-                            <button class="pay-button" data-item-id="${item.id}">Pay Now</button>
-                            <button class="download-btn" data-item-id="${item.id}" style="display: none;">Download</button>
-                        </div>
-                    </div>
-                `;
-                galleryGrid.appendChild(itemDiv);
-            });
-
-            // Add event listeners for pay buttons
-            document.querySelectorAll('.pay-button').forEach(button => {
-                button.addEventListener('click', handlePayment);
-            });
-
-            // Add event listeners for download buttons (initially hidden)
-            document.querySelectorAll('.download-btn').forEach(button => {
-                button.addEventListener('click', handleDownload);
-            });
-        }
-
-        // Handle file upload
-        uploadForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const file = fileInput.files[0];
-            const description = descriptionInput.value;
-            const price = parseFloat(priceInput.value);
-
-            if (!file) {
-                showMessage(uploadMessage, 'Please select a file to upload.', 'error');
-                return;
+            } else {
+                // No user is signed in. Redirect to login page.
+                console.log("No user signed in. Redirecting to login.");
+                window.location.href = "login.html";
             }
-            if (isNaN(price) || price <= 0) {
-                showMessage(uploadMessage, 'Please enter a valid price.', 'error');
-                return;
-            }
-
-            // Simulate file storage: In a real app, you'd send this to a server
-            const fileUrl = URL.createObjectURL(file); // For local preview
-            const fileName = file.name;
-            const fileType = file.type;
-
-            const newItem = {
-                id: Date.now().toString(), // Unique ID for the item
-                fileName: fileName,
-                type: fileType,
-                url: fileUrl, // This will be a temporary URL
-                description: description,
-                price: price,
-                paid: false // Track payment status
-            };
-
-            galleryItems.push(newItem);
-            renderGallery();
-
-            // Clear form
-            uploadForm.reset();
-            showMessage(uploadMessage, 'Item uploaded successfully and added to gallery!', 'success');
         });
 
-        // Simulate WayForPay payment processingfunction handlePayment(event) {
-  const button = event.target;
-  const itemId = button.dataset.itemId;
-  const item = galleryItems.find(i => i.id === itemId);
-  const emailInput = document.getElementById(`email-${itemId}`);
-  const userEmail = emailInput.value;
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            auth.signOut().then(() => {
+                alert("Ви вийшли з адмін-панелі.");
+                window.location.href = "login.html";
+            }).catch((error) => {
+                console.error("Logout Error:", error);
+                alert("Помилка при виході.");
+            });
+        });
 
-  if (!userEmail || !userEmail.includes('@')) {
-    alert('Будь ласка, введіть коректний Email.');
-    return;
-  }
-
-  if (!item) {
-    alert('Файл не знайдено.');
-    return;
-  }
-
-  var wayforpay = new Wayforpay();
-  wayforpay.run({
-    merchantAccount: "22fa25a88590bae73aaf215717ff6c5ce66a8805",
-    amount: item.price,
-    currency: "UAH",
-    orderReference: "order_" + Date.now(),
-    orderDate: Date.now(),
-    productName: item.fileName,
-    productPrice: item.price,
-    productCount: 1,
-    clientEmail: userEmail
-  },
-  function() {
-    // після успішної оплати
-    item.paid = true;
-    renderGallery(); // оновлюємо галерею
-
-    const itemElement = document.querySelector(`.gallery-item[data-id="${itemId}"]`);
-    if (itemElement) {
-      const payButton = itemElement.querySelector('.pay-button');
-      const emailField = itemElement.querySelector(`input[type="email"]`);
-      const downloadButton = itemElement.querySelector('.download-btn');
-
-      if (payButton) payButton.style.display = 'none';
-      if (emailField) emailField.style.display = 'none';
-      if (downloadButton) downloadButton.style.display = 'inline-block';
-    }
-
-    alert(`Оплата за "${item.fileName}" пройшла успішно!`);
-  });
-}
-        async function handlePayment(event) {
-            const button = event.target;
-            const itemId = button.dataset.itemId;
-            const item = galleryItems.find(i => i.id === itemId);
-            const emailInput = document.getElementById(`email-${itemId}`);
-            const userEmail = emailInput.value;
-
-            if (!userEmail || !userEmail.includes('@')) {
-                alert('Please enter a valid email address.');
-                return;
-            }
-
-            if (!item) {
-                alert('Error: Item not found.');
-                return;
-            }
-
-            button.disabled = true;
-            button.textContent = 'Processing...';
-
-            // *** IMPORTANT: This is a SIMULATED payment. ***
-            // In a real application, you would:
-            // 1. Send an AJAX request to your server with item details and user email.
-            // 2. Your server would then generate a WayForPay payment form or redirect
-            //    using the WayForPay API (e.g., WayForPay `data-wfp-btn` attributes
-            //    or direct API calls).
-            // 3. WayForPay would handle the payment.
-            // 4. WayForPay would send a callback to your server upon success/failure.
-            // 5. Your server would then update the payment status in your database
-            //    and notify the client (e.g., via websockets or subsequent page load).
-
-            console.log(`Simulating payment for item: ${item.fileName}, Price: ${item.price}, Email: ${userEmail}`);
-            console.log(`Merchant Account ID: ${WAYFORPAY_MERCHANT_ACCOUNT}`);
-
-            // Simulate a delay for payment processing
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Simulate successful payment
-            item.paid = true;
-            renderGallery(); // Re-render to show download button
-
-            const itemElement = document.querySelector(`.gallery-item[data-id="${itemId}"]`);
-            if (itemElement) {
-                const payButton = itemElement.querySelector('.pay-button');
-                const emailField = itemElement.querySelector(`input[type="email"]`);
-                const downloadButton = itemElement.querySelector('.download-btn');
-
-                if (payButton) payButton.style.display = 'none';
-                if (emailField) emailField.style.display = 'none';
-                if (downloadButton) downloadButton.style.display = 'inline-block';
-
-                alert(`Payment for "${item.fileName}" successful! You can now download your file.`);
-            }
-
-            button.disabled = false;
-            button.textContent = 'Pay Now'; // Reset button text if payment is handled by redirect
+        // Helper function to extract Google Drive File ID
+        function getGoogleDriveFileId(url) {
+            const regex = /(?:id=|folders\/)([a-zA-Z0-9_-]{28,})/i;
+            const match = url.match(regex);
+            return match ? match[1] : null;
         }
-function convertDriveLink(originalLink, type = 'image') {
-  // Витягуємо ID файлу з посилання
-  const regex = /\/d\/(.*?)\//;
-  const match = originalLink.match(regex);
 
-  if (!match || !match[1]) {
-    alert("Невірне посилання на Google Drive!");
-    return null;
-  }
+        // Helper function to convert Google Drive share link to direct download/embed link
+        function convertDriveLink(driveUrl, type = 'image') {
+            const fileId = getGoogleDriveFileId(driveUrl);
+            if (fileId) {
+                if (type === 'image') {
+                    return `https://lh3.googleusercontent.com/d/${fileId}=s2048`; // High quality image preview
+                } else if (type === 'video') {
+                    // For video embed in HTML: 'https://drive.google.com/file/d/FILE_ID/preview'
+                    // For direct download (might open in new tab): 'https://drive.google.com/uc?export=download&id=FILE_ID'
+                    return `https://drive.google.com/file/d/${fileId}/preview`; // For embedding
+                } else {
+                    return `https://drive.google.com/uc?export=download&id=${fileId}`; // Generic download
+                }
+            }
+            return null;
+        }
 
-  const fileId = match[1];
+        const galleryForm = document.getElementById('galleryForm');
+        const itemIdInput = document.getElementById('itemId');
+        const itemTitleInput = document.getElementById('itemTitle');
+        const itemDescriptionInput = document.getElementById('itemDescription');
+        const itemPriceInput = document.getElementById('itemPrice');
+        const itemFileInput = document.getElementById('itemFile');
+        const itemDriveUrlInput = document.getElementById('itemDriveUrl');
+        const itemPaidInput = document.getElementById('itemPaid');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const galleryList = document.getElementById('galleryList');
+        const noItemsMessage = document.getElementById('noItemsMessage');
 
-  // Формуємо прямий лінк в залежності від типу контенту
-  if (type === 'image') {
-    return `https://drive.google.com/uc?export=view&id=${fileId}`;
-  } else if (type === 'video') {
-    return `https://drive.google.com/uc?export=download&id=${fileId}`;
-  } else {
-    return null;
-  }
-}
+        let editingItem = null; // Stores the item being edited
 
-// 📌 Приклад використання:
-const gDriveLink = "https://drive.google.com/file/d/1A2B3C4D5E6F7G8H9I0J/view?usp=sharing";
-const directImageLink = convertDriveLink(gDriveLink, 'image');
-const directVideoLink = convertDriveLink(gDriveLink, 'video');
+        // Function to load gallery items from Firestore
+        async function loadGalleryItems() {
+            galleryList.innerHTML = ''; // Clear current list
+            noItemsMessage.style.display = 'block'; // Show "No items" by default
 
-console.log("Прямий лінк на фото:", directImageLink);
-console.log("Прямий лінк на відео:", directVideoLink);
+            try {
+                const snapshot = await db.collection('galleryItems').orderBy('createdAt', 'desc').get();
+                if (!snapshot.empty) {
+                    noItemsMessage.style.display = 'none'; // Hide "No items"
+                    snapshot.forEach(doc => {
+                        const item = { id: doc.id, ...doc.data() };
+                        renderGalleryItem(item);
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching gallery items: ", error);
+                alert("Помилка завантаження елементів галереї.");
+            }
+        }
 
-        // Handle download
+        // Function to render a single gallery item
+        function renderGalleryItem(item) {
+            const itemDiv = document.createElement('div');
+            itemDiv.classList.add('gallery-item');
+            itemDiv.dataset.itemId = item.id;
+
+            let mediaHtml = '';
+            let directUrl = item.url; // Use item.url directly if it's already a direct link
+
+            if (item.driveUrl) { // Prefer Google Drive URL if present
+                if (item.type === 'image') {
+                    directUrl = convertDriveLink(item.driveUrl, 'image');
+                    mediaHtml = `<img src="${directUrl}" alt="${item.title}">`;
+                } else if (item.type === 'video') {
+                    directUrl = convertDriveLink(item.driveUrl, 'video');
+                    mediaHtml = `<video controls src="${directUrl}"></video>`;
+                } else {
+                    // Fallback for unknown type from Drive
+                    mediaHtml = `<p>Тип файлу невідомий або не підтримується для попереднього перегляду з Drive.</p>`;
+                }
+            } else if (item.url) { // If it's a direct URL (e.g., from Firebase Storage)
+                if (item.type && item.type.startsWith('image')) {
+                    mediaHtml = `<img src="${item.url}" alt="${item.title}">`;
+                } else if (item.type && item.type.startsWith('video')) {
+                    mediaHtml = `<video controls src="${item.url}"></video>`;
+                } else {
+                    mediaHtml = `<p>Невідомий тип медіафайлу.</p>`;
+                }
+            } else {
+                 mediaHtml = `<p>Немає медіафайлу.</p>`;
+            }
+
+
+            itemDiv.innerHTML = `
+                ${mediaHtml}
+                <h4>${item.title}</h4>
+                <p>${item.description}</p>
+                <p><strong>Ціна:</strong> ${item.price} грн</p>
+                <p><strong>Оплачено (тест):</strong> ${item.paid ? 'Так' : 'Ні'}</p>
+                <div class="actions">
+                    <button class="btn btn-primary edit-btn" data-item-id="${item.id}">Редагувати</button>
+                    <button class="btn btn-danger delete-btn" data-item-id="${item.id}">Видалити</button>
+                    ${item.paid || item.driveUrl ? `<button class="btn btn-success download-btn" data-item-id="${item.id}" data-item-url="${directUrl || item.url}" data-item-filename="${item.fileName || 'download'}">Завантажити</button>` : ''}
+                </div>
+            `;
+            galleryList.appendChild(itemDiv);
+
+            // Attach event listeners to new buttons
+            itemDiv.querySelector('.edit-btn').addEventListener('click', () => editItem(item.id));
+            itemDiv.querySelector('.delete-btn').addEventListener('click', () => deleteItem(item.id));
+            const downloadBtn = itemDiv.querySelector('.download-btn');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', handleDownload);
+            }
+        }
+
+        // Handle form submission (Add/Update)
+        galleryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = itemIdInput.value;
+            const title = itemTitleInput.value.trim();
+            const description = itemDescriptionInput.value.trim();
+            const price = parseFloat(itemPriceInput.value);
+            const file = itemFileInput.files[0];
+            const driveUrl = itemDriveUrlInput.value.trim();
+            const paid = itemPaidInput.checked;
+
+            if (!title || isNaN(price)) {
+                alert('Будь ласка, заповніть назву та коректну ціну.');
+                return;
+            }
+
+            let itemData = {
+                title,
+                description,
+                price,
+                paid,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp() // For new items
+            };
+
+            // Handle file upload to Firebase Storage or Google Drive URL
+            if (file) {
+                const storageRef = storage.ref(`gallery/${file.name}`);
+                const uploadTask = storageRef.put(file);
+
+                submitBtn.textContent = 'Завантаження...';
+                submitBtn.disabled = true;
+
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        // Progress function
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        submitBtn.textContent = `Завантаження... ${Math.round(progress)}%`;
+                        console.log('Upload is ' + progress + '% done');
+                    },
+                    (error) => {
+                        // Error function
+                        console.error("Upload error:", error);
+                        alert("Помилка завантаження файлу: " + error.message);
+                        submitBtn.textContent = 'Додати елемент';
+                        submitBtn.disabled = false;
+                    },
+                    async () => {
+                        // Complete function
+                        const downloadURL = await storageRef.getDownloadURL();
+                        itemData.url = downloadURL;
+                        itemData.fileName = file.name;
+                        itemData.type = file.type.split('/')[0]; // 'image' or 'video'
+                        itemData.driveUrl = ''; // Clear driveUrl if file is uploaded
+
+                        // Now save to Firestore
+                        saveItemToFirestore(id, itemData);
+                    }
+                );
+            } else if (driveUrl) {
+                itemData.driveUrl = driveUrl;
+                itemData.url = ''; // Clear URL if Drive URL is used
+                // Try to infer type from URL (simple check, can be improved)
+                if (driveUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i)) {
+                    itemData.type = 'image';
+                } else if (driveUrl.match(/\.(mp4|mov|avi|wmv|flv)$/i)) {
+                    itemData.type = 'video';
+                } else {
+                    itemData.type = 'unknown';
+                }
+                itemData.fileName = driveUrl.split('/').pop().split('?')[0]; // Basic filename
+                saveItemToFirestore(id, itemData);
+            } else if (id && !file && !driveUrl) { // Editing an existing item without changing file/driveUrl
+                saveItemToFirestore(id, itemData);
+            } else {
+                alert("Будь ласка, виберіть файл або вставте Google Drive URL.");
+                return;
+            }
+        });
+
+        async function saveItemToFirestore(id, itemData) {
+            try {
+                if (id) {
+                    // Update existing item
+                    await db.collection('galleryItems').doc(id).update({
+                        ...itemData,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert('Елемент успішно оновлено!');
+                } else {
+                    // Add new item
+                    await db.collection('galleryItems').add(itemData);
+                    alert('Елемент успішно додано!');
+                }
+                galleryForm.reset();
+                itemFileInput.value = ''; // Clear file input manually
+                itemDriveUrlInput.value = ''; // Clear drive URL manually
+                submitBtn.textContent = 'Додати елемент';
+                submitBtn.disabled = false;
+                editingItem = null;
+                itemIdInput.value = '';
+                cancelEditBtn.style.display = 'none';
+                loadGalleryItems(); // Reload list
+            } catch (error) {
+                console.error("Error saving item: ", error);
+                alert("Помилка при збереженні елемента: " + error.message);
+                submitBtn.textContent = 'Додати елемент';
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Edit item function
+        async function editItem(id) {
+            try {
+                const doc = await db.collection('galleryItems').doc(id).get();
+                if (doc.exists) {
+                    editingItem = { id: doc.id, ...doc.data() };
+                    itemIdInput.value = editingItem.id;
+                    itemTitleInput.value = editingItem.title;
+                    itemDescriptionInput.value = editingItem.description;
+                    itemPriceInput.value = editingItem.price;
+                    itemPaidInput.checked = editingItem.paid || false;
+                    itemDriveUrlInput.value = editingItem.driveUrl || '';
+                    itemFileInput.value = ''; // Clear file input when editing
+
+                    submitBtn.textContent = 'Оновити елемент';
+                    cancelEditBtn.style.display = 'inline-block';
+                } else {
+                    alert('Елемент не знайдено.');
+                }
+            } catch (error) {
+                console.error("Error fetching item for edit: ", error);
+                alert("Помилка при завантаженні елемента для редагування.");
+            }
+        }
+
+        // Cancel edit function
+        cancelEditBtn.addEventListener('click', () => {
+            galleryForm.reset();
+            itemFileInput.value = '';
+            itemDriveUrlInput.value = '';
+            itemIdInput.value = '';
+            submitBtn.textContent = 'Додати елемент';
+            cancelEditBtn.style.display = 'none';
+            editingItem = null;
+        });
+
+        // Delete item function
+        async function deleteItem(id) {
+            if (confirm('Ви впевнені, що хочете видалити цей елемент?')) {
+                try {
+                    // First, get the item to check for associated file in Storage
+                    const doc = await db.collection('galleryItems').doc(id).get();
+                    if (doc.exists) {
+                        const itemData = doc.data();
+                        if (itemData.url && !itemData.driveUrl) { // If it's a Firebase Storage URL
+                            const fileRef = storage.refFromURL(itemData.url);
+                            await fileRef.delete(); // Delete file from Storage
+                            console.log("File deleted from Storage.");
+                        }
+                    }
+
+                    await db.collection('galleryItems').doc(id).delete();
+                    alert('Елемент успішно видалено!');
+                    loadGalleryItems(); // Reload list
+                } catch (error) {
+                    console.error("Error deleting item: ", error);
+                    alert("Помилка при видаленні елемента: " + error.message);
+                }
+            }
+        }
+
+        // Handle download (client-side for now, production needs server-side for secure files)
         function handleDownload(event) {
             const button = event.target;
-            const itemId = button.dataset.itemId;
-            const item = galleryItems.find(i => i.id === itemId);
+            const itemUrl = button.dataset.itemUrl;
+            const fileName = button.dataset.itemFilename;
 
-            if (!item || !item.paid) {
-                alert('Error: File not available for download or payment not confirmed.');
+            if (!itemUrl) {
+                alert('Помилка: Файл недоступний для завантаження.');
                 return;
             }
 
-            // In a real application, this would be a secure, expiring download link
-            // from your server, after verifying the payment and user.
+            // For Google Drive direct links, some browsers might open instead of download.
+            // For Firebase Storage, you can generate a signed URL on the server.
             const a = document.createElement('a');
-            a.href = item.url;
-            a.download = item.fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            a.href = itemUrl;
+            a.download = fileName; // Suggests a filename
+            document.body.appendChild(a); // Append to body to make it clickable
+            a.click(); // Programmatically click the link
+            document.body.removeChild(a); // Remove the link
 
-            alert(`Downloading "${item.fileName}"...`);
+            alert(`Файл '${fileName}' починає завантажуватися.`);
         }
 
-        // Initial render of gallery (in case there are pre-existing items, or for testing)
-        renderGallery();
+        // Initialize WayForPay (if needed, ensure correct merchant data and callbacks)
+        // const wayforpay = new Wayforpay();
+        // wayforpay.run({
+        //     // Your Wayforpay parameters here
+        //     merchantAccount: 'YOUR_MERCHANT_ACCOUNT',
+        //     merchantDomain: 'YOUR_DOMAIN',
+        //     orderReference: 'ORDER_REFERENCE',
+        //     orderDate: 'ORDER_DATE',
+        //     amount: 'AMOUNT',
+        //     currency: 'UAH',
+        //     productName: ['Product 1'],
+        //     productCount: ['1'],
+        //     productPrice: ['AMOUNT'],
+        //     // ... other parameters
+        // },
+        //     function(response) {
+        //         // Handle success callback
+        //         console.log('Payment success:', response);
+        //         alert('Оплата успішна!');
+        //         // You would update the item's 'paid' status in Firestore here
+        //     },
+        //     function(response) {
+        //         // Handle pending callback
+        //         console.log('Payment pending:', response);
+        //         alert('Оплата очікує підтвердження.');
+        //     },
+        //     function(response) {
+        //         // Handle decline callback
+        //         console.log('Payment declined:', response);
+        //         alert('Оплата відхилена.');
+        //     },
+        //     function(response) {
+        //         // Handle refund callback
+        //         console.log('Payment refunded:', response);
+        //         alert('Платіж повернуто.');
+        //     }
+        // );
+
     </script>
 </body>
 </html>
