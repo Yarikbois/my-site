@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YarikOgraf - Галерея</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+    <script>
+        // !! IMPORTANT !!
+        // Replace these with your actual Firebase project configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Custom styles for gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            padding: 20px;
+        }
+
+        .gallery-item {
+            background-color: #1c1c1c;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+        }
+
+        .gallery-item img,
+        .gallery-item video {
+            width: 100%;
+            height: 200px; /* Fixed height for media */
+            object-fit: cover;
+            display: block;
+        }
+
+        .item-details {
+            padding: 16px;
+            color: #b0b0b0;
+            flex-grow: 1;
+        }
+
+        .item-details h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .item-details p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .item-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 16px;
+            background-color: #2a2a2a;
+            border-top: 1px solid #333;
+        }
+
+        .item-actions button {
+            background-color: #D41811; /* Brand Red for Buy */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+        }
+
+        .item-actions button:hover {
+            background-color: #a3100c;
+            transform: translateY(-2px);
+        }
+
+        .item-actions button.download-btn {
+            background-color: #007bff; /* Blue for Download */
+        }
+
+        .item-actions button.download-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #b0b0b0;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body class="font-inter bg-dark-gray-bg text-medium-gray-text">
+
+    <header class="bg-black text-white p-6 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-3xl font-bold text-brand-red">YarikOgraf</a>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="index.html" class="hover:text-brand-red transition-colors">Головна</a></li>
+                    <li><a href="gallery.html" class="hover:text-brand-red transition-colors">Галерея</a></li>
+                    <li><a href="about.html" class="hover:text-brand-red transition-colors">Про мене</a></li>
+                    <li><a href="contact.html" class="hover:text-brand-red transition-colors">Контакти</a></li>
+                    <li><a href="login.html" class="hover:text-brand-red transition-colors">Адмін</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-8 mt-8 bg-black rounded-lg shadow-xl">
+        <h1 class="text-5xl font-extrabold text-white mb-8 text-center">Мої Роботи</h1>
+
+        <div id="galleryContainer" class="gallery-grid">
+            <p class="message" id="loadingMessage">Завантаження галереї...</p>
+        </div>
+    </main>
+
+    <footer class="bg-black text-white p-6 mt-12 text-center">
+        <p>&copy; 2023 YarikOgraf. Усі права захищено.</p>
+    </footer>
+
+    <script src="https://secure.wayforpay.com/server/pay-widget.js"></script>
+    <script>
+        const galleryContainer = document.getElementById('galleryContainer');
+        const loadingMessage = document.getElementById('loadingMessage');
+
+        // Function to convert Google Drive link to direct download link
+        function convertDriveLink(driveUrl, type = 'file') {
+            const regex = /\/file\/d\/([a-zA-Z0-9_-]+)(?:\/view)?(?:\?usp=sharing)?/;
+            const match = driveUrl.match(regex);
+            if (match && match[1]) {
+                const fileId = match[1];
+                if (type === 'image') {
+                    // For direct image display (might not always work for large files or certain permissions)
+                    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+                } else if (type === 'video') {
+                    // For direct video playback (requires video player)
+                    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+                } else { // default to download
+                    return `https://drive.google.com/uc?export=download&id=${fileId}`;
+                }
+            } else {
+                return null;
+            }
+        }
+
+        async function fetchGalleryItems() {
+            try {
+                const galleryRef = db.collection('galleryItems').orderBy('timestamp', 'desc');
+                const snapshot = await galleryRef.get();
+
+                galleryContainer.innerHTML = ''; // Clear loading message
+
+                if (snapshot.empty) {
+                    galleryContainer.innerHTML = '<p class="message">Наразі галерея порожня.</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const item = doc.data();
+                    const itemId = doc.id;
+
+                    const itemElement = document.createElement('div');
+                    itemElement.classList.add('gallery-item');
+                    itemElement.dataset.itemId = itemId;
+
+                    let mediaHtml = '';
+                    let directMediaLink = '';
+                    if (item.driveUrl) {
+                        if (item.fileType && item.fileType.startsWith('image')) {
+                            directMediaLink = convertDriveLink(item.driveUrl, 'image');
+                            mediaHtml = `<img src="${directMediaLink}" alt="${item.title}" class="w-full h-48 object-cover">`;
+                        } else if (item.fileType && item.fileType.startsWith('video')) {
+                            directMediaLink = convertDriveLink(item.driveUrl, 'video');
+                            mediaHtml = `<video controls src="${directMediaLink}" class="w-full h-48 object-cover"></video>`;
+                        } else {
+                            // Fallback if type is not set or unknown, try image
+                            directMediaLink = convertDriveLink(item.driveUrl, 'image');
+                            mediaHtml = `<img src="${directMediaLink}" alt="${item.title}" class="w-full h-48 object-cover">`;
+                        }
+                    } else if (item.imageUrl) { // Legacy or direct Firebase Storage URL
+                         if (item.fileType && item.fileType.startsWith('video')) {
+                            mediaHtml = `<video controls src="${item.imageUrl}" class="w-full h-48 object-cover"></video>`;
+                        } else {
+                            mediaHtml = `<img src="${item.imageUrl}" alt="${item.title}" class="w-full h-48 object-cover">`;
+                        }
+                    }
+
+
+                    itemElement.innerHTML = `
+                        ${mediaHtml}
+                        <div class="item-details">
+                            <h3>${item.title || 'Без назви'}</h3>
+                            <p>${item.description || 'Без опису.'}</p>
+                            <p class="font-bold text-lg text-brand-red">${item.price ? `${item.price} грн` : 'Безкоштовно'}</p>
+                        </div>
+                        <div class="item-actions">
+                            ${item.price && item.price > 0 ? `<button class="buy-btn" data-item-id="${itemId}">Купити</button>` : ''}
+                            <button class="download-btn" data-item-id="${itemId}" ${item.price && item.price > 0 && !item.paid ? 'disabled' : ''}>${item.price && item.price > 0 ? (item.paid ? 'Завантажити' : 'Очікує оплати') : 'Завантажити'}</button>
+                        </div>
+                    `;
+                    galleryContainer.appendChild(itemElement);
+                });
+
+                attachEventListeners();
+
+            } catch (error) {
+                console.error("Error fetching gallery items:", error);
+                galleryContainer.innerHTML = '<p class="message">Не вдалося завантажити елементи галереї. Спробуйте пізніше.</p>';
+            }
+        }
+
+        function attachEventListeners() {
+            document.querySelectorAll('.buy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = this.dataset.itemId;
+                    handleBuy(itemId);
+                });
+            });
+
+            document.querySelectorAll('.download-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = this.dataset.itemId;
+                    handleDownload(itemId);
+                });
+            });
+        }
+
+        async function handleBuy(itemId) {
+            try {
+                const itemDoc = await db.collection('galleryItems').doc(itemId).get();
+                if (!itemDoc.exists) {
+                    alert('Елемент не знайдено.');
+                    return;
+                }
+                const item = itemDoc.data();
+
+                if (item.paid) {
+                    alert('Цей елемент вже оплачено!');
+                    // Optionally, redirect to download immediately or change button text
+                    const downloadButton = document.querySelector(`.download-btn[data-item-id="${itemId}"]`);
+                    if (downloadButton) {
+                         downloadButton.textContent = 'Завантажити';
+                         downloadButton.disabled = false;
+                    }
+                    handleDownload(itemId);
+                    return;
+                }
+
+                if (!item.price || item.price <= 0) {
+                    alert('Цей елемент є безкоштовним для завантаження!');
+                    handleDownload(itemId);
+                    return;
+                }
+
+                // WayForPay integration (example, needs proper parameters and server-side handling)
+                // This is a client-side initiation. A real payment flow needs a backend to generate signature.
+                // You would typically generate orderReference, merchantSignature, etc. on your server.
+                alert(`Імітація покупки: Ви збираєтеся купити "${item.title}" за ${item.price} грн.`);
+
+                // Example WayForPay widget call (replace with your actual integration)
+                /*
+                Wayforpay.run({
+                    merchantAccount: 'YOUR_MERCHANT_ACCOUNT',
+                    merchantDomain: 'YOUR_DOMAIN',
+                    orderReference: 'WFP_ORDER_' + itemId + '_' + Date.now(),
+                    orderDate: Date.now() / 1000, // Unix timestamp
+                    amount: item.price,
+                    currency: 'UAH',
+                    productName: [item.title],
+                    productCount: ['1'],
+                    productPrice: [item.price],
+                    // Additional parameters like client email, phone, etc.
+                    // merchantSignature: 'GENERATED_ON_SERVER_SIDE', // !!! CRITICAL: Must be generated on server
+                    returnUrl: window.location.href, // Or a dedicated success page
+                    statusUrl: 'YOUR_SERVER_STATUS_CALLBACK_URL', // !!! CRITICAL: For WayForPay to inform your server about payment status
+                },
+                    function(response) {
+                        console.log('Payment success:', response);
+                        alert('Оплата успішна! Тепер ви можете завантажити файл.');
+                        // In a real scenario, your server would update the item's 'paid' status after WayForPay's callback
+                        // For demonstration, we'll optimistically update the UI. REMOVE IN PRODUCTION.
+                        db.collection('galleryItems').doc(itemId).update({ paid: true })
+                            .then(() => {
+                                const downloadButton = document.querySelector(`.download-btn[data-item-id="${itemId}"]`);
+                                if (downloadButton) {
+                                    downloadButton.textContent = 'Завантажити';
+                                    downloadButton.disabled = false;
+                                }
+                            });
+                    },
+                    function(response) {
+                        console.log('Payment pending:', response);
+                        alert('Оплата очікує підтвердження. Зачекайте.');
+                    },
+                    function(response) {
+                        console.log('Payment declined:', response);
+                        alert('Оплата відхилена. Спробуйте ще раз.');
+                    },
+                    function(response) {
+                        console.log('Payment refunded:', response);
+                        alert('Платіж повернуто.');
+                    }
+                );
+                */
+
+            } catch (error) {
+                console.error("Error during buy process:", error);
+                alert("Помилка при обробці покупки.");
+            }
+        }
+
+        async function handleDownload(itemId) {
+            try {
+                const itemDoc = await db.collection('galleryItems').doc(itemId).get();
+                if (!itemDoc.exists) {
+                    alert('Елемент не знайдено для завантаження.');
+                    return;
+                }
+                const item = itemDoc.data();
+
+                // If it's a paid item and not marked as paid, prevent download
+                if (item.price && item.price > 0 && !item.paid) {
+                    alert('Цей файл доступний лише після оплати. Будь ласка, спочатку придбайте його.');
+                    return;
+                }
+
+                let downloadUrl = item.downloadUrl || item.imageUrl; // Prefer specific downloadUrl, fallback to imageUrl
+                if (item.driveUrl) {
+                    downloadUrl = convertDriveLink(item.driveUrl, 'download');
+                }
+
+                if (downloadUrl) {
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = item.fileName || item.title || 'download'; // Suggest a filename
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    alert(`Файл "${item.fileName || item.title}" завантажується.`);
+                } else {
+                    alert('Немає посилання для завантаження цього файлу.');
+                }
+            } catch (error) {
+                console.error("Error during download process:", error);
+                alert("Помилка під час завантаження файлу.");
+            }
+        }
+
+
+        // Initial fetch of gallery items
+        document.addEventListener('DOMContentLoaded', fetchGalleryItems);
+    </script>
+</body>
+</html>
