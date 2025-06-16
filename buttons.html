@@ -4,6 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Дії з фото/відео</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <script src="https://secure.wayforpay.com/server/pay-widget.js"></script>
+
+  <script>
+    // !! ВАЖЛИВО !!
+    // Замініть це на свою фактичну конфігурацію проекту Firebase
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY", // <--- ЗАМІНІТЬ ЦЕ
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // <--- ЗАМІНІТЬ ЦЕ
+        projectId: "YOUR_PROJECT_ID", // <--- ЗАМІНІТЬ ЦЕ
+        storageBucket: "YOUR_PROJECT_ID.appspot.com", // <--- ЗАМІНІТЬ ЦЕ
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <--- ЗАМІНІТЬ ЦЕ
+        appId: "YOUR_APP_ID" // <--- ЗАМІНІТЬ ЦЕ
+    };
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+  </script>
+
   <style>
     body {
       background-color: #f0f0f0;
@@ -18,6 +39,27 @@
       margin: 0;
     }
 
+    .item-info {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+        max-width: 500px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .item-info h2 {
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .item-info p {
+        color: #666;
+        margin-bottom: 5px;
+    }
+
     .action-button {
       display: inline-block;
       padding: 15px 30px;
@@ -28,93 +70,224 @@
       background-color: #007bff;
       border-radius: 8px;
       transition: background-color 0.3s;
+      cursor: pointer;
     }
 
     .action-button:hover {
       background-color: #0056b3;
     }
 
-    /* Example of a Buy button with a distinct color, perhaps from your main site's theme */
     .action-button.buy {
-        background-color: #D41811; /* Example: using the red from your site */
+        background-color: #D41811; /* Your custom red color */
     }
     .action-button.buy:hover {
         background-color: #a9130d;
     }
 
-    /* Style for messages/placeholders */
+    .action-button.download {
+        background-color: #28a745; /* Green for download */
+    }
+    .action-button.download:hover {
+        background-color: #218838;
+    }
+
     .message {
+        color: #D41811;
+        font-weight: bold;
         margin-top: 20px;
-        font-size: 1.1em;
-        color: #555;
+    }
+
+    .preview-media {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        object-fit: contain; /* Ensure media fits within bounds */
     }
   </style>
 </head>
 <body>
 
-  <h1>Оберіть дію</h1>
+  <div id="itemDetails" class="item-info">
+    <p class="message" id="loadingMessage">Завантаження інформації про товар...</p>
+    </div>
 
-  <a href="YOUR_PAYMENT_LINK_OR_PRODUCT_PAGE" class="action-button buy">Купити</a>
-
-  <a href="YOUR_DIRECT_DOWNLOAD_FILE_URL" class="action-button" download="your_photo_or_video.jpg">Завантажити</a>
-
-  <p class="message">
-      Примітка: Посилання "Купити" та "Завантажити" потребують динамічного встановлення згідно з обраним фото/відео та статусом оплати.
-  </p>
+  <div id="buttonsContainer">
+    <button id="buyButton" class="action-button buy" style="display: none;">Купити</button>
+    <a id="downloadButton" class="action-button download" style="display: none;">Завантажити</a>
+    <a href="index.html" class="action-button">Повернутися до галереї</a>
+  </div>
 
   <script>
-    // In a real scenario, this page would likely receive parameters (e.g., via URL query)
-    // about which item to display buttons for, and then fetch its details from Firebase
-    // to populate the actual 'href' attributes for "Купити" and "Завантажити".
+    document.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const itemId = urlParams.get('itemId');
 
-    // Example (conceptual):
-    // document.addEventListener('DOMContentLoaded', () => {
-    //     const urlParams = new URLSearchParams(window.location.search);
-    //     const itemId = urlParams.get('itemId'); // e.g., buttons.html?itemId=someFirebaseDocId
+        const itemDetailsDiv = document.getElementById('itemDetails');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const buyButton = document.getElementById('buyButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const buttonsContainer = document.getElementById('buttonsContainer');
 
-    //     if (itemId) {
-    //         // Fetch item details from Firebase Firestore
-    //         // db.collection('galleryItems').doc(itemId).get().then(doc => {
-    //         //     if (doc.exists) {
-    //         //         const item = doc.data();
-    //         //         const buyButton = document.querySelector('.action-button.buy');
-    //         //         const downloadButton = document.querySelector('.action-button[download]');
+        if (itemId) {
+            try {
+                const itemDoc = await db.collection('galleryItems').doc(itemId).get();
 
-    //         //         // Set buy link (e.g., to a WayForPay initiation with item details)
-    //         //         buyButton.href = `https://your-payment-gateway.com/pay?item=${itemId}&price=${item.price}`;
+                if (itemDoc.exists) {
+                    const item = { id: itemDoc.id, ...itemDoc.data() };
+                    loadingMessage.style.display = 'none'; // Hide loading message
 
-    //         //         // Set download link (use direct URL if available, or converted Drive URL)
-    //         //         if (item.url) { // Assuming item.url is a direct Firebase Storage URL
-    //         //             downloadButton.href = item.url;
-    //         //             downloadButton.download = item.fileName || 'download';
-    //         //         } else if (item.driveUrl) {
-    //         //             // You would need the convertDriveLink logic here too, or have a server endpoint
-    //         //             const directDriveLink = "YOUR_SERVER_ENDPOINT_TO_CONVERT_DRIVE_LINK?url=" + encodeURIComponent(item.driveUrl);
-    //         //             downloadButton.href = directDriveLink;
-    //         //             downloadButton.download = item.fileName || 'download';
-    //         //         } else {
-    //         //             downloadButton.style.display = 'none'; // Hide if no download link
-    //         //         }
+                    // Display item details
+                    let mediaHtml = '';
+                    if (item.url) { // Firebase Storage URL
+                        if (item.type && item.type.startsWith('image')) {
+                            mediaHtml = `<img src="${item.url}" alt="${item.title}" class="preview-media">`;
+                        } else if (item.type && item.type.startsWith('video')) {
+                            mediaHtml = `<video controls src="${item.url}" class="preview-media"></video>`;
+                        }
+                    } else if (item.driveUrl) { // Google Drive URL (for preview, download link is different)
+                         const fileId = getGoogleDriveFileId(item.driveUrl);
+                         if (fileId) {
+                            if (item.type === 'image') {
+                                mediaHtml = `<img src="https://lh3.googleusercontent.com/d/${fileId}=s500" alt="${item.title}" class="preview-media">`; // Smaller preview
+                            } else if (item.type === 'video') {
+                                mediaHtml = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" class="preview-media" frameborder="0" allowfullscreen></iframe>`;
+                            }
+                         }
+                    }
 
-    //         //         // If item is already paid, maybe change "Купити" to "Переглянути" or hide it.
-    //         //         if (item.paid) {
-    //         //             buyButton.textContent = "Переглянути (вже оплачено)";
-    //         //             // Maybe disable download button if not paid
-    //         //             // downloadButton.disabled = !item.paid;
-    //         //         }
+                    itemDetailsDiv.innerHTML = `
+                        ${mediaHtml}
+                        <h2>${item.title}</h2>
+                        <p>${item.description}</p>
+                        <p class="font-bold text-xl text-red-600">${item.price} грн</p>
+                    `;
 
-    //         //     } else {
-    //         //         document.body.innerHTML = '<p class="message">Елемент не знайдено.</p>';
-    //         //     }
-    //         // }).catch(error => {
-    //         //     console.error("Error fetching item for buttons:", error);
-    //         //     document.body.innerHTML = '<p class="message">Помилка завантаження даних.</p>';
-    //         // });
-    //     } else {
-    //         // If no itemId is provided in the URL, display a generic message or redirect
-    //         // document.body.innerHTML = '<p class="message">Оберіть фото/відео для виконання дії.</p>';
-    //     }
-    // });
+                    // Handle button visibility and functionality
+                    if (item.paid) {
+                        buyButton.style.display = 'none';
+                        downloadButton.style.display = 'inline-block';
+                        // If it's a Google Drive file, point to a backend endpoint for secure download
+                        if (item.driveUrl) {
+                            // THIS IS THE CRITICAL PART REQUIRING BACKEND
+                            // Your backend needs an endpoint like /api/download-drive-file?itemId=XYZ
+                            // This endpoint will:
+                            // 1. Verify payment status in Firestore.
+                            // 2. Use Google Drive API with YOUR service account/credentials to generate a temporary, signed download URL.
+                            // 3. Redirect the user to that URL or serve the file directly.
+                            downloadButton.href = `/api/download-drive-file?itemId=${item.id}`; // Example backend endpoint
+                            downloadButton.setAttribute('target', '_blank'); // Open in new tab
+                            downloadButton.textContent = 'Завантажити з Google Drive';
+                            downloadButton.addEventListener('click', (e) => {
+                                // Optional: Prevent default if you want to handle the download more robustly via JS
+                                // e.preventDefault();
+                                alert('Завантаження файлу Google Drive вимагає серверної обробки для безпечного доступу. Ви будете перенаправлені на адресу, яку надасть ваш сервер.');
+                            });
+                        } else if (item.url) { // Firebase Storage URL
+                            downloadButton.href = item.url;
+                            downloadButton.download = item.fileName || 'download'; // Use original file name
+                            downloadButton.textContent = 'Завантажити';
+                        } else {
+                            downloadButton.style.display = 'none'; // Hide if no download link
+                            itemDetailsDiv.innerHTML += '<p class="message">Для цього елемента немає посилання для завантаження.</p>';
+                        }
+
+                    } else {
+                        buyButton.style.display = 'inline-block';
+                        downloadButton.style.display = 'none';
+                        // Attach WayForPay logic to buy button
+                        buyButton.addEventListener('click', () => initiateWayForPay(item));
+                    }
+
+                } else {
+                    itemDetailsDiv.innerHTML = '<p class="message">Елемент не знайдено.</p>';
+                    buttonsContainer.style.display = 'none';
+                }
+            } catch (error) {
+                console.error("Помилка завантаження інформації про товар:", error);
+                itemDetailsDiv.innerHTML = '<p class="message">Помилка завантаження даних.</p>';
+                buttonsContainer.style.display = 'none';
+            }
+        } else {
+            itemDetailsDiv.innerHTML = '<p class="message">Оберіть фото/відео з галереї для перегляду.</p>';
+            buttonsContainer.style.display = 'none';
+        }
+    });
+
+    // Helper function to extract Google Drive File ID (already in index.html, but good to have here too)
+    function getGoogleDriveFileId(url) {
+        const regex = /(?:id=|folders\/)([a-zA-Z0-9_-]{28,})/i;
+        const match = url.match(regex);
+        return match ? match[1] : null;
+    }
+
+    async function initiateWayForPay(item) {
+        // !! ВАЖЛИВО: merchantSignature повинен генеруватися на бекенді !!
+        // Цей код є лише ЗАГЛУШКОЮ для демонстрації виклику віджету.
+        // У реальному проекті:
+        // 1. Надсилаємо запит на ваш бекенд (наприклад, /api/create-wayforpay-order)
+        // 2. Бекенд генерує merchantSignature та повертає всі параметри WayForPay.
+        // 3. Використовуємо отримані параметри для виклику WayForPay.run()
+
+        try {
+            // ПРИКЛАД: Запит до вашого бекенду для отримання параметрів оплати
+            // Замініть '/api/create-wayforpay-order' на реальний ендпоінт вашого бекенду
+            const response = await fetch('/api/create-wayforpay-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    itemId: item.id,
+                    amount: item.price,
+                    productName: item.title,
+                    orderReference: `order_${Date.now()}_${item.id}`, // Унікальний ID замовлення
+                    // Додаткові дані, які ваш бекенд може потребувати (наприклад, returnUrl, serviceUrl)
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Помилка бекенду при підготовці оплати: ${response.status} - ${errorText}`);
+            }
+
+            const paymentParams = await response.json(); // Очікуємо параметри WayForPay від бекенду
+
+            // Перевірка, чи отримали ми необхідні параметри
+            if (!paymentParams.merchantAccount || !paymentParams.merchantSignature || !paymentParams.orderReference) {
+                 throw new Error('Бекенд не повернув необхідні параметри оплати WayForPay. Перевірте конфігурацію бекенду.');
+            }
+
+            Wayforpay.run(
+                paymentParams, // Параметри, отримані від вашого бекенду
+                function(response) {
+                    console.log('Payment success (from WayForPay widget):', response);
+                    alert('Оплата успішна! Через кілька секунд ви зможете завантажити файл.');
+                    // УВАГА: Фінальне оновлення статусу "paid" у Firebase має відбуватися на бекенді
+                    // після отримання WayForPay callback! Тут ми лише оновлюємо UI.
+                    setTimeout(() => {
+                        window.location.reload(); // Перезавантажити сторінку, щоб оновити кнопки
+                    }, 3000); // Даємо час бекенду оновити статус у Firebase
+                },
+                function(response) {
+                    console.log('Payment pending:', response);
+                    alert('Оплата очікує підтвердження. Будь ласка, зачекайте.');
+                },
+                function(response) {
+                    console.log('Payment declined:', response);
+                    alert('Оплата відхилена. Будь ласка, спробуйте ще раз або зверніться до підтримки.');
+                },
+                function(response) {
+                    console.log('Payment refunded:', response);
+                    alert('Платіж повернуто.');
+                }
+            );
+
+        } catch (error) {
+            console.error("Помилка підготовки до оплати:", error);
+            alert("Не вдалося підготувати оплату. Будь ласка, спробуйте пізніше. Деталі в консолі.");
+        }
+    }
   </script>
 </body>
 </html>
