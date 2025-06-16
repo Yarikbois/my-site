@@ -5,34 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"></script>
+
     <script>
-        // !! IMPORTANT !!
-        // Replace these with your actual Firebase project configuration
+        // !! ВАЖЛИВО !!
+        // Замініть це на свою фактичну конфігурацію проекту Firebase
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY", // <--- REPLACE THIS
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // <--- REPLACE THIS
-            projectId: "YOUR_PROJECT_ID", // <--- REPLACE THIS
-            storageBucket: "YOUR_PROJECT_ID.appspot.com", // <--- REPLACE THIS
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <--- REPLACE THIS
-            appId: "YOUR_APP_ID" // <--- REPLACE THIS
+            apiKey: "YOUR_API_KEY", // <--- ЗАМІНІТЬ ЦЕ
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // <--- ЗАМІНІТЬ ЦЕ
+            projectId: "YOUR_PROJECT_ID", // <--- ЗАМІНІТЬ ЦЕ
+            storageBucket: "YOUR_PROJECT_ID.appspot.com", // <--- ЗАМІНІТЬ ЦЕ
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <--- ЗАМІНІТЬ ЦЕ
+            appId: "YOUR_APP_ID" // <--- ЗАМІНІТЬ ЦЕ
         };
-        firebase.initializeApp(firebaseConfig);
+        // Ініціалізуємо Firebase, якщо ще не ініціалізовано
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore(); // Ініціалізуємо Firestore
+        const storage = firebase.storage(); // Ініціалізуємо Storage
     </script>
 
     <meta name="google-site-verification" content="YOUR_UNIQUE_GOOGLE_VERIFICATION_CODE" /> <title>YarikOgraf - Надихаюсь життям природи та її красою</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Tailwind CSS custom configuration for colors and font family
+        // Користувацька конфігурація Tailwind CSS
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        // Custom font family 'Inter' - ensure it's loaded if used
-                        // 'inter': ['Inter', 'sans-serif'],
+                        // 'inter': ['Inter', 'sans-serif'], // Розкоментуйте, якщо використовуєте шрифт Inter
                     },
                     colors: {
-                        'header-yo-red': '#D41811', // Example custom color
-                        // Add other custom colors here
+                        'header-yo-red': '#D41811',
                     }
                 }
             }
@@ -48,9 +54,9 @@
             <nav>
                 <ul class="flex space-x-4">
                     <li><a href="#" class="text-gray-600 hover:text-header-yo-red">Головна</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-header-yo-red">Галерея</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-header-yo-red">Про мене</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-header-yo-red">Контакти</a></li>
+                    <li><a href="#gallery" class="text-gray-600 hover:text-header-yo-red">Галерея</a></li>
+                    <li><a href="#about" class="text-gray-600 hover:text-header-yo-red">Про мене</a></li>
+                    <li><a href="#contact" class="text-gray-600 hover:text-header-yo-red">Контакти</a></li>
                     <li><a href="login.html" class="text-gray-600 hover:text-header-yo-red">Адмін</a></li>
                 </ul>
             </nav>
@@ -64,14 +70,22 @@
             <a href="#gallery" class="bg-header-yo-red text-white px-6 py-3 rounded-full text-lg hover:bg-red-700 transition duration-300">Переглянути роботи</a>
         </section>
 
+        <section id="gallery" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Наша Галерея</h3>
+            <div id="publicGalleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <p id="loadingGallery" class="col-span-full text-center text-gray-500">Завантаження галереї...</p>
+                <p id="noGalleryItems" class="col-span-full text-center text-gray-500 hidden">У галереї ще немає елементів.</p>
+            </div>
+        </section>
+
         <section class="bg-white rounded-lg shadow-md p-6 mb-8">
             <h3 class="text-2xl font-bold text-gray-800 mb-4">Календар донатів</h3>
             <div class="flex flex-col md:flex-row justify-between items-start">
                 <div class="w-full md:w-1/2 p-4">
                     <div class="flex justify-between items-center mb-4">
-                        <button id="prevMonth" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&lt;</button>
+                        <button id="prevMonth" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"><</button>
                         <h4 id="currentMonthYear" class="text-xl font-semibold"></h4>
-                        <button id="nextMonth" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&gt;</button>
+                        <button id="nextMonth" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">></button>
                     </div>
                     <div id="calendar" class="grid grid-cols-7 gap-2 text-center">
                         <div class="font-bold text-gray-600">Пн</div>
@@ -88,22 +102,143 @@
                 <div class="w-full md:w-1/2 p-4">
                     <h4 class="text-xl font-semibold mb-3">Топ донатори за вибраний день</h4>
                     <ul id="topDonatorsList" class="list-disc pl-5 text-gray-700">
-                        <li class="text-gray-500">Поки що донатів немає.</li>
+                        <li class="text-gray-500">Оберіть дату або донатів поки що немає.</li>
                     </ul>
                 </div>
             </div>
         </section>
 
-        </main>
+        <section id="about" class="text-center py-12 bg-white rounded-lg shadow-md mb-8">
+            <h3 class="text-3xl font-extrabold text-gray-900 mb-4">Про мене</h3>
+            <p class="text-lg text-gray-700 max-w-2xl mx-auto">
+                Привіт! Я YarikOgraf, фотограф, який черпає натхнення з природи та її унікальної краси.
+                Мої роботи — це спроба передати той трепет, який я відчуваю, спостерігаючи за світом навколо нас.
+                Кожен знімок — це історія, кожен кадр — мить, спіймана навічно.
+            </p>
+        </section>
+
+        <section id="contact" class="text-center py-12 bg-white rounded-lg shadow-md mb-8">
+            <h3 class="text-3xl font-extrabold text-gray-900 mb-4">Зв'яжіться зі мною</h3>
+            <p class="text-lg text-gray-700 mb-6">
+                Маєте питання або бажаєте замовити фотосесію? Зв'яжіться зі мною!
+            </p>
+            <p class="text-xl font-semibold text-gray-800">Email: example@email.com</p>
+            <p class="text-xl font-semibold text-gray-800">Телефон: +38 (0XX) XXX-XX-XX</p>
+            </section>
+
+    </main>
 
     <footer class="bg-gray-800 text-white py-6 mt-8">
         <div class="container mx-auto text-center">
-            <p>&copy; 2025 YarikOgraf. Усі права захищені.</p>
+            <p>© 2025 YarikOgraf. Усі права захищені.</p>
         </div>
     </footer>
 
     <script>
+        // Helper function to extract Google Drive File ID
+        function getGoogleDriveFileId(url) {
+            const regex = /(?:id=|folders\/)([a-zA-Z0-9_-]{28,})/i;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        // Helper function to convert Google Drive share link to direct embed/preview link
+        // Note: For actual downloads of large files, Google Drive API on a backend is more reliable.
+        function convertDriveLinkForPreview(driveUrl, type = 'image') {
+            const fileId = getGoogleDriveFileId(driveUrl);
+            if (fileId) {
+                if (type === 'image') {
+                    // This generates a higher quality preview link for Google Photos/Drive images
+                    // This typically works for images shared with "anyone with the link can view".
+                    return `https://lh3.googleusercontent.com/d/${fileId}=s2048`; // s2048 for high res thumbnail
+                } else if (type === 'video') {
+                    // This is for embedding videos as an iframe or direct preview
+                    return `https://drive.google.com/file/d/${fileId}/preview`;
+                }
+            }
+            return null;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Gallery Loading Logic ---
+            const publicGalleryGrid = document.getElementById('publicGalleryGrid');
+            const loadingGallery = document.getElementById('loadingGallery');
+            const noGalleryItems = document.getElementById('noGalleryItems');
+
+            async function loadPublicGalleryItems() {
+                publicGalleryGrid.innerHTML = ''; // Clear existing items
+                loadingGallery.style.display = 'block';
+                noGalleryItems.style.display = 'none';
+
+                try {
+                    // Fetch items from Firestore, order by creation date (newest first)
+                    const snapshot = await db.collection('galleryItems').orderBy('createdAt', 'desc').get();
+                    loadingGallery.style.display = 'none';
+
+                    if (snapshot.empty) {
+                        noGalleryItems.style.display = 'block';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const item = { id: doc.id, ...doc.data() };
+                        renderPublicGalleryItem(item);
+                    });
+
+                } catch (error) {
+                    console.error("Помилка завантаження елементів галереї: ", error);
+                    publicGalleryGrid.innerHTML = '<p class="col-span-full text-center text-red-500">Помилка завантаження галереї.</p>';
+                    loadingGallery.style.display = 'none';
+                }
+            }
+
+            function renderPublicGalleryItem(item) {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('bg-gray-50', 'rounded-lg', 'shadow-md', 'overflow-hidden', 'transform', 'hover:scale-105', 'transition-transform', 'duration-300');
+
+                let mediaHtml = '';
+                let displayUrl = '';
+
+                if (item.driveUrl) {
+                    if (item.type === 'image') {
+                        displayUrl = convertDriveLinkForPreview(item.driveUrl, 'image');
+                        mediaHtml = `<img src="${displayUrl}" alt="${item.title}" class="w-full h-48 object-cover">`;
+                    } else if (item.type === 'video') {
+                        displayUrl = convertDriveLinkForPreview(item.driveUrl, 'video');
+                        // Use iframe for better video embedding from Drive preview
+                        mediaHtml = `<iframe src="${displayUrl}" class="w-full h-48 object-cover" frameborder="0" allowfullscreen></iframe>`;
+                    } else {
+                        mediaHtml = `<div class="w-full h-48 flex items-center justify-center text-gray-500">Непідтримуваний тип файлу Drive.</div>`;
+                    }
+                } else if (item.url) { // Firebase Storage URL
+                    if (item.type && item.type.startsWith('image')) {
+                        displayUrl = item.url;
+                        mediaHtml = `<img src="${displayUrl}" alt="${item.title}" class="w-full h-48 object-cover">`;
+                    } else if (item.type && item.type.startsWith('video')) {
+                        displayUrl = item.url;
+                        mediaHtml = `<video controls src="${displayUrl}" class="w-full h-48 object-cover"></video>`;
+                    } else {
+                        mediaHtml = `<div class="w-full h-48 flex items-center justify-center text-gray-500">Невідомий тип медіафайлу.</div>`;
+                    }
+                } else {
+                    mediaHtml = `<div class="w-full h-48 flex items-center justify-center text-gray-500">Немає медіафайлу.</div>`;
+                }
+
+                itemDiv.innerHTML = `
+                    ${mediaHtml}
+                    <div class="p-4">
+                        <h4 class="text-lg font-semibold text-gray-800 truncate">${item.title}</h4>
+                        <p class="text-sm text-gray-600 line-clamp-2 mb-2">${item.description}</p>
+                        <p class="text-md font-bold text-header-yo-red mb-3">${item.price} грн</p>
+                        <a href="buttons.html?itemId=${item.id}" class="bg-header-yo-red text-white px-4 py-2 rounded hover:bg-red-700 transition duration-300 w-full inline-block">Переглянути / Купити</a>
+                    </div>
+                `;
+                publicGalleryGrid.appendChild(itemDiv);
+            }
+
+            loadPublicGalleryItems(); // Load gallery on page load
+
+            // --- Calendar Logic ---
             const calendar = document.getElementById('calendar');
             const currentMonthYearDisplay = document.getElementById('currentMonthYear');
             const prevMonthBtn = document.getElementById('prevMonth');
@@ -126,27 +261,21 @@
                 const lastDayOfMonth = new Date(year, month + 1, 0);
                 const daysInMonth = lastDayOfMonth.getDate();
 
-                // Get the day of the week for the first day of the month (0 = Sunday, 1 = Monday, etc.)
-                // Adjust to make Monday the first day of the week (0-indexed for grid-cols-7)
                 let firstDayOfWeek = firstDayOfMonth.getDay();
-                if (firstDayOfWeek === 0) firstDayOfWeek = 6; // Sunday becomes last (6)
+                if (firstDayOfWeek === 0) firstDayOfWeek = 6; // Sunday becomes last (6) for Monday start
                 else firstDayOfWeek--; // Monday (1) becomes 0, Tuesday (2) becomes 1, etc.
 
-                // Add empty divs for preceding days to align the first day
                 for (let i = 0; i < firstDayOfWeek; i++) {
                     const emptyDay = document.createElement('div');
                     calendar.appendChild(emptyDay);
                 }
 
-                // Add days of the month
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dayElement = document.createElement('div');
                     dayElement.classList.add('calendar-day', 'p-2', 'rounded-lg', 'cursor-pointer', 'hover:bg-gray-200');
                     dayElement.textContent = day;
-                    // Store date in dataset for easy retrieval
-                    dayElement.dataset.date = `${year}-${month + 1}-${day}`; // month + 1 because it's 0-indexed
+                    dayElement.dataset.date = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`; // YYYY-MM-DD format
 
-                    // Highlight today's date
                     const today = new Date();
                     if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
                         dayElement.classList.add('bg-blue-300', 'font-bold');
@@ -165,42 +294,44 @@
             prevMonthBtn.addEventListener('click', () => changeMonth(-1));
             nextMonthBtn.addEventListener('click', () => changeMonth(1));
 
-            renderCalendar(); // Initial render
+            renderCalendar(); // Initial calendar render
 
-            // Function to update donators list (placeholder for now)
-            // In a real application, this would fetch data from Firebase based on the selected date
-            function updateTopDonatorsList(date, totalAmount) {
+            // Function to update donators list (fetch from Firestore)
+            async function updateTopDonatorsList(dateString) {
                 topDonatorsList.innerHTML = ''; // Clear existing list
-                if (date) {
-                    // This is where you would fetch data from Firebase Firestore/Realtime Database
-                    // For now, it's just a placeholder.
-                    // Example:
-                    // db.collection('donations').where('date', '==', date).get().then(snapshot => {
-                    //    snapshot.forEach(doc => {
-                    //        const donator = doc.data();
-                    //        const listItem = document.createElement('li');
-                    //        listItem.textContent = `${donator.name}: ${donator.amount} грн`;
-                    //        topDonatorsList.appendChild(listItem);
-                    //    });
-                    //    if (snapshot.empty) {
-                    //        const listItem = document.createElement('li');
-                    //        listItem.textContent = 'На цю дату донатів не знайдено.';
-                    //        topDonatorsList.appendChild(listItem);
-                    //    }
-                    // }).catch(error => {
-                    //    console.error("Error fetching donations: ", error);
-                    //    const listItem = document.createElement('li');
-                    //    listItem.textContent = 'Помилка завантаження донатів.';
-                    //    topDonatorsList.appendChild(listItem);
-                    // });
-
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `Тимчасовий текст: Завантаження донатів для ${date}...`;
-                    topDonatorsList.appendChild(listItem);
-
-                } else {
+                if (!dateString) {
                     const listItem = document.createElement('li');
                     listItem.textContent = 'Оберіть дату, щоб переглянути донаторів.';
+                    topDonatorsList.appendChild(listItem);
+                    return;
+                }
+
+                try {
+                    // Query Firestore for donations on the selected date
+                    // You would need a 'donations' collection in your Firestore
+                    // Each donation document should have a 'date' field (e.g., as a string 'YYYY-MM-DD' or Firestore Timestamp)
+                    const snapshot = await db.collection('donations')
+                                             .where('date', '==', dateString) // Assuming 'date' is stored as 'YYYY-MM-DD' string
+                                             .orderBy('amount', 'desc') // Order by amount for 'top' donators
+                                             .limit(5) // Limit to top 5
+                                             .get();
+
+                    if (snapshot.empty) {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `На ${new Date(dateString).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' })} донатів не знайдено.`;
+                        topDonatorsList.appendChild(listItem);
+                    } else {
+                        snapshot.forEach(doc => {
+                            const donation = doc.data();
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `${donation.donorName || 'Анонім'}: ${donation.amount} грн`;
+                            topDonatorsList.appendChild(listItem);
+                        });
+                    }
+                } catch (error) {
+                    console.error("Помилка завантаження донатів: ", error);
+                    const listItem = document.createElement('li');
+                    listItem.textContent = 'Помилка завантаження донатів.';
                     topDonatorsList.appendChild(listItem);
                 }
             }
@@ -208,59 +339,27 @@
             function attachDayClickListeners() {
                 document.querySelectorAll('.calendar-day').forEach(day => {
                     day.addEventListener('click', () => {
-                        // Remove highlight from previously selected day
                         if (selectedDayElement) {
                             selectedDayElement.classList.remove('bg-header-yo-red', 'text-white', 'border-yo-red');
-                            selectedDayElement.classList.add('hover:bg-gray-200'); // Re-add hover if needed
+                            selectedDayElement.classList.add('hover:bg-gray-200');
                         }
 
-                        // Add highlight to the newly selected day
                         day.classList.add('bg-header-yo-red', 'text-white', 'border-yo-red');
-                        day.classList.remove('hover:bg-gray-200'); // Remove hover for selected
-                        selectedDayElement = day; // Update reference to selected day
+                        day.classList.remove('hover:bg-gray-200');
+                        selectedDayElement = day;
 
-                        // Update the displayed selected date text
-                        const dateValue = day.dataset.date;
+                        const dateValue = day.dataset.date; // YYYY-MM-DD
                         const dateParts = dateValue.split('-');
-                        // Month is 0-indexed for Date constructor
-                        const date = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+                        const dateObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
                         const options = { day: 'numeric', month: 'long', year: 'numeric' };
-                        selectedDateDisplay.textContent = date.toLocaleDateString('uk-UA', options);
+                        selectedDateDisplay.textContent = dateObj.toLocaleDateString('uk-UA', options);
 
-                        // Call function to update donators list for the selected date
-                        updateTopDonatorsList(dateValue, 0); // Pass the selected date
+                        updateTopDonatorsList(dateValue); // Pass the selected date string
                     });
                 });
             }
 
-            // --- Login Form Handling (for the "Адмін" link) ---
-            // This is the login logic directly in index.html, which is redundant if login.html exists.
-            // It's better to redirect to login.html for login.
-            // Keeping it for now as per your original file, but recommending `login.html` as the dedicated page.
-            document.getElementById('loginForm')?.addEventListener('submit', function(e){
-                e.preventDefault();
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-
-                firebase.auth().signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    // Check if the authenticated user's email matches the admin email
-                    if (user.email === "yarikphoto26@gmail.com") { // !! IMPORTANT: Consider storing admin email more securely
-                        window.location.href = "admin.html"; // Redirect to admin page
-                    } else {
-                        alert("Ви не маєте доступу!");
-                        firebase.auth().signOut(); // Log out non-admin users
-                    }
-                })
-                .catch((error) => {
-                    alert("Помилка входу: " + error.message);
-                    console.error("Login Error:", error);
-                });
-            });
-
-            // Initial call to update donators list (empty for this static version, but function exists)
-            updateTopDonatorsList('', 0); // Initialize with no date selected
+            updateTopDonatorsList(''); // Initialize donators list as empty
         });
     </script>
 </body>
