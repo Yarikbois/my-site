@@ -2,13 +2,20 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>Кнопки</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Дії з фото/відео</title>
   <style>
     body {
       background-color: #f0f0f0;
       text-align: center;
       padding: 50px;
       font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
     }
 
     .action-button {
@@ -26,13 +33,88 @@
     .action-button:hover {
       background-color: #0056b3;
     }
+
+    /* Example of a Buy button with a distinct color, perhaps from your main site's theme */
+    .action-button.buy {
+        background-color: #D41811; /* Example: using the red from your site */
+    }
+    .action-button.buy:hover {
+        background-color: #a9130d;
+    }
+
+    /* Style for messages/placeholders */
+    .message {
+        margin-top: 20px;
+        font-size: 1.1em;
+        color: #555;
+    }
   </style>
 </head>
 <body>
 
-  <a href="freelance_user_684476a2de62a" class="action-button">Купити</a>
-  <a href="https://drive.google.com/drive/folders/1gguwuDwlJYETmMGvxJPdXcqH66MakOKq?usp=drive_link" class="action-button" download>Завантажити</a>
-  <a href="freelance_user_684476a2de62a" class="action-button">Донат</a>
+  <h1>Оберіть дію</h1>
 
+  <a href="YOUR_PAYMENT_LINK_OR_PRODUCT_PAGE" class="action-button buy">Купити</a>
+
+  <a href="YOUR_DIRECT_DOWNLOAD_FILE_URL" class="action-button" download="your_photo_or_video.jpg">Завантажити</a>
+
+  <p class="message">
+      Примітка: Посилання "Купити" та "Завантажити" потребують динамічного встановлення згідно з обраним фото/відео та статусом оплати.
+  </p>
+
+  <script>
+    // In a real scenario, this page would likely receive parameters (e.g., via URL query)
+    // about which item to display buttons for, and then fetch its details from Firebase
+    // to populate the actual 'href' attributes for "Купити" and "Завантажити".
+
+    // Example (conceptual):
+    // document.addEventListener('DOMContentLoaded', () => {
+    //     const urlParams = new URLSearchParams(window.location.search);
+    //     const itemId = urlParams.get('itemId'); // e.g., buttons.html?itemId=someFirebaseDocId
+
+    //     if (itemId) {
+    //         // Fetch item details from Firebase Firestore
+    //         // db.collection('galleryItems').doc(itemId).get().then(doc => {
+    //         //     if (doc.exists) {
+    //         //         const item = doc.data();
+    //         //         const buyButton = document.querySelector('.action-button.buy');
+    //         //         const downloadButton = document.querySelector('.action-button[download]');
+
+    //         //         // Set buy link (e.g., to a WayForPay initiation with item details)
+    //         //         buyButton.href = `https://your-payment-gateway.com/pay?item=${itemId}&price=${item.price}`;
+
+    //         //         // Set download link (use direct URL if available, or converted Drive URL)
+    //         //         if (item.url) { // Assuming item.url is a direct Firebase Storage URL
+    //         //             downloadButton.href = item.url;
+    //         //             downloadButton.download = item.fileName || 'download';
+    //         //         } else if (item.driveUrl) {
+    //         //             // You would need the convertDriveLink logic here too, or have a server endpoint
+    //         //             const directDriveLink = "YOUR_SERVER_ENDPOINT_TO_CONVERT_DRIVE_LINK?url=" + encodeURIComponent(item.driveUrl);
+    //         //             downloadButton.href = directDriveLink;
+    //         //             downloadButton.download = item.fileName || 'download';
+    //         //         } else {
+    //         //             downloadButton.style.display = 'none'; // Hide if no download link
+    //         //         }
+
+    //         //         // If item is already paid, maybe change "Купити" to "Переглянути" or hide it.
+    //         //         if (item.paid) {
+    //         //             buyButton.textContent = "Переглянути (вже оплачено)";
+    //         //             // Maybe disable download button if not paid
+    //         //             // downloadButton.disabled = !item.paid;
+    //         //         }
+
+    //         //     } else {
+    //         //         document.body.innerHTML = '<p class="message">Елемент не знайдено.</p>';
+    //         //     }
+    //         // }).catch(error => {
+    //         //     console.error("Error fetching item for buttons:", error);
+    //         //     document.body.innerHTML = '<p class="message">Помилка завантаження даних.</p>';
+    //         // });
+    //     } else {
+    //         // If no itemId is provided in the URL, display a generic message or redirect
+    //         // document.body.innerHTML = '<p class="message">Оберіть фото/відео для виконання дії.</p>';
+    //     }
+    // });
+  </script>
 </body>
 </html>
