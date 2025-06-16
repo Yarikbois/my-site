@@ -5,24 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
-    <script>
-        // !! IMPORTANT !!
-        // Replace these with your actual Firebase project configuration
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script> <script>
+        // Ваша реальна конфігурація Firebase
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyB2ZDlk8AOvhthA6Yw43xkTa-yB2ghgFXo",
+            authDomain: "sfkn-93305.firebaseapp.com",
+            projectId: "sfkn-93305",
+            storageBucket: "sfkn-93305.firebasestorage.app",
+            messagingSenderId: "1000070012129",
+            appId: "1:1000070012129:web:3e021aa7220bcf6daaeba0",
+            measurementId: "G-P6424DVQW9"
         };
-        firebase.initializeApp(firebaseConfig);
-
-        const db = firebase.firestore();
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore(); // Ініціалізація Firestore
     </script>
 
-    <meta name="google-site-verification" content="YOUR_UNIQUE_GOOGLE_VERIFICATION_CODE" />
+    <meta name="google-site-verification" content="твій_унікальний_код" /> 
     <title>YarikOgraf - Надихаюсь життям природи та її красою</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -35,280 +35,229 @@
                         inter: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        // Custom color 'brand-red'
-                        'brand-red': '#D41811',
-                        'light-gray': '#f8f8f8',
-                        'dark-gray-bg': '#1a1a1a',
-                        'medium-gray-text': '#b0b0b0',
-                    }
-                }
-            }
-        }
+                        // Custom color 'dark-red'
+                        'dark-red': '#D41811',
+                    },
+                },
+            },
+        };
     </script>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .calendar-day.has-donations {
-            background-color: #D41811; /* Highlight days with donations */
-            color: white;
-            font-weight: bold;
-        }
-        .calendar-day.selected-day {
-            border: 2px solid #D41811;
-            box-shadow: 0 0 8px rgba(212, 24, 17, 0.5);
-        }
-    </style>
 </head>
-<body class="font-inter bg-dark-gray-bg text-medium-gray-text">
-
-    <header class="bg-black text-white p-6 shadow-lg">
-        <div class="container mx-auto flex justify-between items-center">
-            <a href="index.html" class="text-3xl font-bold text-brand-red">YarikOgraf</a>
-            <nav>
-                <ul class="flex space-x-6">
-                    <li><a href="index.html" class="hover:text-brand-red transition-colors">Головна</a></li>
-                    <li><a href="gallery.html" class="hover:text-brand-red transition-colors">Галерея</a></li>
-                    <li><a href="about.html" class="hover:text-brand-red transition-colors">Про мене</a></li>
-                    <li><a href="contact.html" class="hover:text-brand-red transition-colors">Контакти</a></li>
-                    <li><a href="login.html" class="hover:text-brand-red transition-colors">Адмін</a></li>
-                </ul>
-            </nav>
-        </div>
+<body class="bg-[#111] text-white font-inter">
+    <header class="bg-[#222] text-white p-6 flex justify-between items-center">
+        <h1 class="text-3xl font-bold font-inter">YarikOgraf</h1>
+        <nav>
+            <a href="login.html" class="px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition-colors">Вхід / Реєстрація</a>
+        </nav>
     </header>
 
-    <main class="container mx-auto p-8 mt-8 bg-black rounded-lg shadow-xl">
-        <section class="text-center mb-12">
-            <h1 class="text-5xl font-extrabold text-white mb-4">Надихаюсь життям природи та її красою</h1>
-            <p class="text-xl text-light-gray leading-relaxed">
-                Досліджую та захоплююся світом природи через об'єктив камери.
-                Мої фотографії - це спроба передати неповторну красу та велич кожного моменту.
+    <main class="container mx-auto p-4">
+        <section class="text-center py-12">
+            <h2 class="text-5xl font-bold mb-4">Надихаюсь життям природи та її красою</h2>
+            <p class="text-lg text-gray-300 max-w-2xl mx-auto">
+                Збережіть моменти, що проходять повз, у вічних фотографіях.
             </p>
-            <a href="gallery.html" class="mt-8 inline-block bg-brand-red text-white text-xl font-semibold py-4 px-10 rounded-full shadow-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105">
-                Переглянути роботи
-            </a>
+            <button class="mt-8 px-8 py-3 bg-dark-red rounded-lg text-xl font-semibold hover:bg-red-700 transition-colors">
+                Дізнатись більше
+            </button>
         </section>
 
-        <section class="mb-12">
-            <h2 class="text-4xl font-bold text-white mb-8 text-center">Календар Донатів</h2>
-            <p class="text-lg text-light-gray mb-6 text-center">Оберіть день, щоб побачити топ донаторів.</p>
-
-            <div class="flex flex-col items-center">
-                <div class="calendar bg-gray-800 p-6 rounded-lg shadow-lg max-w-xl w-full">
-                    <div class="calendar-header flex justify-between items-center mb-4">
-                        <button id="prevMonth" class="text-white text-2xl px-3 py-1 rounded-full hover:bg-gray-700 transition-colors">&lt;</button>
-                        <h2 id="currentMonthYear" class="text-white text-2xl font-semibold"></h2>
-                        <button id="nextMonth" class="text-white text-2xl px-3 py-1 rounded-full hover:bg-gray-700 transition-colors">&gt;</button>
-                    </div>
-                    <div class="calendar-weekdays grid grid-cols-7 gap-2 text-center text-gray-400 mb-2">
-                        <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span>
-                    </div>
-                    <div id="calendar-days" class="grid grid-cols-7 gap-2 text-center">
-                        </div>
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-12">
+            <div class="bg-[#222] rounded-lg overflow-hidden shadow-lg">
+                <img src="https://via.placeholder.com/400x300?text=Photo+1" alt="Photo 1" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold mb-2">Назва фото 1</h3>
+                    <p class="text-gray-400">Короткий опис або місце зйомки.</p>
+                    <button class="mt-4 px-6 py-2 bg-dark-red rounded-lg hover:bg-red-700 transition-colors">
+                        Переглянути
+                    </button>
                 </div>
-
-                <div class="mt-8 text-center bg-gray-800 p-6 rounded-lg shadow-lg max-w-xl w-full">
-                    <h3 class="text-2xl font-bold text-white mb-4">Обрана Дата: <span id="selectedDateDisplay" class="text-brand-red">Не обрано</span></h3>
-                    <div id="topDonatorsList" class="text-light-gray">
-                        <p>Оберіть день на календарі, щоб побачити донаторів.</p>
-                    </div>
+            </div>
+            <div class="bg-[#222] rounded-lg overflow-hidden shadow-lg">
+                <img src="https://via.placeholder.com/400x300?text=Photo+2" alt="Photo 2" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold mb-2">Назва фото 2</h3>
+                    <p class="text-gray-400">Короткий опис або місце зйомки.</p>
+                    <button class="mt-4 px-6 py-2 bg-dark-red rounded-lg hover:bg-red-700 transition-colors">
+                        Переглянути
+                    </button>
+                </div>
+            </div>
+            <div class="bg-[#222] rounded-lg overflow-hidden shadow-lg">
+                <img src="https://via.placeholder.com/400x300?text=Photo+3" alt="Photo 3" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold mb-2">Назва фото 3</h3>
+                    <p class="text-gray-400">Короткий опис або місце зйомки.</p>
+                    <button class="mt-4 px-6 py-2 bg-dark-red rounded-lg hover:bg-red-700 transition-colors">
+                        Переглянути
+                    </button>
                 </div>
             </div>
         </section>
+
+        <section class="py-12">
+            <h2 class="text-4xl font-bold mb-8 text-center">Календар подій</h2>
+            <div class="bg-[#222] rounded-lg p-6 shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <button id="prevMonth" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">&lt; Попередній</button>
+                    <h3 id="currentMonthYear" class="text-2xl font-semibold">Червень 2024</h3>
+                    <button id="nextMonth" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">Наступний &gt;</button>
+                </div>
+                <div id="calendar" class="grid grid-cols-7 gap-2 text-center">
+                    <div class="text-gray-400 font-semibold">Пн</div>
+                    <div class="text-gray-400 font-semibold">Вт</div>
+                    <div class="text-gray-400 font-semibold">Ср</div>
+                    <div class="text-gray-400 font-semibold">Чт</div>
+                    <div class="text-gray-400 font-semibold">Пт</div>
+                    <div class="text-gray-400 font-semibold">Сб</div>
+                    <div class="text-gray-400 font-semibold">Нд</div>
+                    </div>
+            </div>
+        </section>
+
+        <section class="py-12">
+            <h2 class="text-4xl font-bold mb-8 text-center">Наші спонсори</h2>
+            <div class="bg-[#222] rounded-lg p-6 shadow-lg">
+                <h3 class="text-2xl font-semibold mb-4" id="selectedDateDisplay">Виберіть дату</h3>
+                <ul id="topDonatorsList" class="list-disc list-inside text-left mx-auto max-w-md">
+                    <li class="text-gray-400">Наразі немає донаторів за вибраний день.</li>
+                </ul>
+            </div>
+        </section>
+
     </main>
 
-    <footer class="bg-black text-white p-6 mt-12 text-center">
-        <p>&copy; 2023 YarikOgraf. Усі права захищено.</p>
+    <footer class="bg-[#222] text-white p-6 text-center">
+        <p>&copy; 2024 YarikOgraf. Всі права захищено.</p>
     </footer>
 
     <script>
-        const daysContainer = document.getElementById('calendar-days');
-        const currentMonthYearDisplay = document.getElementById('currentMonthYear');
-        const prevMonthButton = document.getElementById('prevMonth');
-        const nextMonthButton = document.getElementById('nextMonth');
-        const selectedDateDisplay = document.getElementById('selectedDateDisplay');
-        const topDonatorsListElement = document.getElementById('topDonatorsList');
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const currentMonthYearEl = document.getElementById('currentMonthYear');
+            const prevMonthBtn = document.getElementById('prevMonth');
+            const nextMonthBtn = document.getElementById('nextMonth');
+            const selectedDateDisplay = document.getElementById('selectedDateDisplay');
+            const topDonatorsList = document.getElementById('topDonatorsList');
 
-        let currentDate = new Date();
-        let selectedDayElement = null; // To keep track of the currently selected day HTML element
+            let currentMonth = new Date().getMonth();
+            let currentYear = new Date().getFullYear();
+            let selectedDayElement = null; // To keep track of the currently selected day element
 
-        const db = firebase.firestore(); // Initialize Firestore
+            function updateCalendar() {
+                calendarEl.innerHTML = `
+                    <div class="text-gray-400 font-semibold">Пн</div>
+                    <div class="text-gray-400 font-semibold">Вт</div>
+                    <div class="text-gray-400 font-semibold">Ср</div>
+                    <div class="text-gray-400 font-semibold">Чт</div>
+                    <div class="text-gray-400 font-semibold">Пт</div>
+                    <div class="text-gray-400 font-semibold">Сб</div>
+                    <div class="text-gray-400 font-semibold">Нд</div>
+                `; // Clear and re-add day headers
 
-        async function getDonationDataForMonth(year, month) {
-            const startDate = new Date(year, month, 1);
-            const endDate = new Date(year, month + 1, 0, 23, 59, 59); // Last second of the month
+                const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+                const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+                const daysInMonth = lastDayOfMonth.getDate();
 
-            const donationsRef = db.collection('donations');
-            const snapshot = await donationsRef
-                .where('date', '>=', startDate)
-                .where('date', '<=', endDate)
-                .get();
+                currentMonthYearEl.textContent = firstDayOfMonth.toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' });
 
-            const donationDates = new Set();
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.date && data.date.toDate) { // Ensure it's a Firestore Timestamp
-                    donationDates.add(data.date.toDate().toISOString().split('T')[0]);
-                }
-            });
-            return donationDates;
-        }
+                // Adjust for week start (Monday is 0, so subtract 1, handle Sunday as 6)
+                let firstDayOfWeek = (firstDayOfMonth.getDay() + 6) % 7; 
 
-        async function updateTopDonatorsList(dateString, limit = 5) {
-            topDonatorsListElement.innerHTML = ''; // Clear previous list
-            if (!dateString) {
-                topDonatorsListElement.innerHTML = '<p>Оберіть день на календарі, щоб побачити донаторів.</p>';
-                return;
-            }
-
-            const selectedDateStart = new Date(dateString);
-            selectedDateStart.setHours(0, 0, 0, 0);
-            const selectedDateEnd = new Date(dateString);
-            selectedDateEnd.setHours(23, 59, 59, 999);
-
-            try {
-                const donationsRef = db.collection('donations');
-                const snapshot = await donationsRef
-                    .where('date', '>=', selectedDateStart)
-                    .where('date', '<=', selectedDateEnd)
-                    .orderBy('amount', 'desc') // Order by amount descending
-                    .limit(limit)
-                    .get();
-
-                if (snapshot.empty) {
-                    topDonatorsListElement.innerHTML = `<p>На ${selectedDateDisplay.textContent} донатів немає.</p>`;
-                    return;
+                for (let i = 0; i < firstDayOfWeek; i++) {
+                    const emptyDiv = document.createElement('div');
+                    calendarEl.appendChild(emptyDiv);
                 }
 
-                const donators = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const name = data.name || 'Анонім';
-                    const amount = data.amount || 0;
-                    donators.push({ name, amount });
-                });
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.textContent = day;
+                    dayDiv.classList.add('p-2', 'rounded-lg', 'cursor-pointer', 'transition-colors', 'duration-200');
+                    dayDiv.classList.add('hover:bg-gray-700');
 
-                let donatorHtml = `<p class="font-bold text-white mb-2">Топ донаторів за ${selectedDateDisplay.textContent}:</p><ul>`;
-                donators.forEach(donator => {
-                    donatorHtml += `<li>${donator.name}: ${donator.amount} грн</li>`;
-                });
-                donatorHtml += `</ul>`;
-                topDonatorsListElement.innerHTML = donatorHtml;
+                    const dateValue = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    dayDiv.dataset.date = dateValue; // Store date in dataset
 
-            } catch (error) {
-                console.error("Error fetching donators:", error);
-                topDonatorsListElement.innerHTML = '<p>Помилка завантаження списку донаторів.</p>';
-            }
-        }
-
-
-        async function renderCalendar() {
-            daysContainer.innerHTML = ''; // Clear previous days
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-
-            currentMonthYearDisplay.textContent = new Date(year, month).toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' });
-
-            const firstDayOfMonth = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            // Adjust firstDayOfMonth for Monday start (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
-            const startDay = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
-
-            const donationDates = await getDonationDataForMonth(year, month);
-
-            // Add empty divs for leading blank days
-            for (let i = 0; i < startDay; i++) {
-                const emptyDay = document.createElement('div');
-                emptyDay.classList.add('p-2');
-                daysContainer.appendChild(emptyDay);
-            }
-
-            // Add days of the month
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayElement = document.createElement('div');
-                dayElement.classList.add('calendar-day', 'p-2', 'rounded-lg', 'cursor-pointer', 'hover:bg-gray-700', 'transition-colors');
-                dayElement.textContent = day;
-
-                const dateValue = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                dayElement.dataset.date = dateValue;
-
-                if (donationDates.has(dateValue)) {
-                    dayElement.classList.add('has-donations');
+                    calendarEl.appendChild(dayDiv);
                 }
-
-                // If this day was previously selected (after a month change)
-                if (selectedDayElement && selectedDayElement.dataset.date === dateValue) {
-                    dayElement.classList.add('selected-day', 'border-yo-red');
-                    selectedDayElement = dayElement; // Update the reference
-                }
-
-                daysContainer.appendChild(dayElement);
+                addDayEventListeners();
             }
 
-            // Add click listeners to new day elements
-            document.querySelectorAll('.calendar-day').forEach(day => {
-                day.addEventListener('click', function() {
-                    // Remove selected class from previously selected day
-                    if (selectedDayElement) {
-                        selectedDayElement.classList.remove('selected-day', 'border-yo-red');
-                    }
-                    // Add selected class to the newly clicked day
-                    day.classList.add('selected-day', 'border-yo-red');
-                    selectedDayElement = day; // Update reference to selected day
+            function changeMonth(delta) {
+                currentMonth += delta;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                } else if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                updateCalendar();
+                selectedDateDisplay.textContent = "Виберіть дату"; // Reset display
+                topDonatorsList.innerHTML = '<li class="text-gray-400">Наразі немає донаторів за вибраний день.</li>'; // Reset list
+            }
 
-                    // Update the displayed selected date text
-                    const dateValue = day.dataset.date;
-                    const dateParts = dateValue.split('-');
-                    const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); // Month is 0-indexed
-                    const options = { day: 'numeric', month: 'long', year: 'numeric' };
-                    selectedDateDisplay.textContent = date.toLocaleDateString('uk-UA', options);
+            prevMonthBtn.addEventListener('click', () => changeMonth(-1));
+            nextMonthBtn.addEventListener('click', () => changeMonth(1));
 
-                    updateTopDonatorsList(dateValue); // Fetch and display donators for the selected date
-                });
-            });
-        }
+            updateCalendar(); // Initial calendar display
 
-        prevMonthButton.addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            selectedDayElement = null; // Clear selected day on month change
-            selectedDateDisplay.textContent = 'Не обрано';
-            renderCalendar();
-            updateTopDonatorsList(''); // Clear donators list
-        });
+            function updateTopDonatorsList(selectedDate, maxDonators = 5) {
+                topDonatorsList.innerHTML = ''; // Clear previous list
 
-        nextMonthButton.addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            selectedDayElement = null; // Clear selected day on month change
-            selectedDateDisplay.textContent = 'Не обрано';
-            renderCalendar();
-            updateTopDonatorsList(''); // Clear donators list
-        });
-
-        // Initial render
-        renderCalendar();
-
-        // Optional: If you want to keep the login form directly on index.html for some reason,
-        // otherwise it's handled by login.html
-        // Keeping it for now as per your original file, but recommending `login.html` as the dedicated page.
-        document.getElementById('loginForm')?.addEventListener('submit', function(e){
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            firebase.auth().signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                // Check if the authenticated user's email matches the admin email
-                if (user.email === "yarikphoto26@gmail.com") { // !! IMPORTANT: Consider storing admin email more securely
-                    window.location.href = "admin.html"; // Redirect to admin page
+                // In a real application, you would fetch donation data from Firestore
+                // based on the selectedDate. For now, it's a placeholder.
+                if (selectedDate) {
+                    // Example: Fetch from a 'donations' collection where each doc has a 'date' field
+                    // db.collection("donations").where("date", "==", selectedDate).orderBy("amount", "desc").limit(maxDonators).get()
+                    // .then(querySnapshot => {
+                    //     if (querySnapshot.empty) {
+                    //         topDonatorsList.innerHTML = '<li class="text-gray-400">Наразі немає донаторів за вибраний день.</li>';
+                    //     } else {
+                    //         querySnapshot.forEach(doc => {
+                    //             const data = doc.data();
+                    //             const li = document.createElement('li');
+                    //             li.textContent = `${data.name || 'Анонім'}: ${data.amount} грн`;
+                    //             topDonatorsList.appendChild(li);
+                    //         });
+                    //     }
+                    // })
+                    // .catch(error => {
+                    //     console.error("Error fetching donators:", error);
+                    //     topDonatorsList.innerHTML = '<li class="text-red-400">Помилка завантаження донаторів.</li>';
+                    // });
+                    
+                    // Placeholder for now
+                    topDonatorsList.innerHTML = '<li class="text-gray-400">Функціонал донаторів буде додано.</li>';
                 } else {
-                    alert("Ви не маєте доступу!");
-                    firebase.auth().signOut(); // Log out non-admin users
+                    topDonatorsList.innerHTML = '<li class="text-gray-400">Наразі немає донаторів за вибраний день.</li>';
                 }
-            })
-            .catch((error) => {
-                alert("Помилка входу: " + error.message);
-                console.error("Login Error:", error);
-            });
+            }
+
+
+            function addDayEventListeners() {
+                document.querySelectorAll('#calendar > div:not(.text-gray-400)').forEach(day => {
+                    day.addEventListener('click', function() {
+                        if (selectedDayElement) {
+                            selectedDayElement.classList.remove('bg-dark-red', 'border-2', 'border-dark-red');
+                        }
+                        this.classList.add('bg-dark-red', 'border-2', 'border-dark-red');
+                        selectedDayElement = this; 
+
+                        const dateValue = this.dataset.date;
+                        const dateParts = dateValue.split('-');
+                        const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); 
+                        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                        selectedDateDisplay.textContent = date.toLocaleDateString('uk-UA', options);
+
+                        updateTopDonatorsList(dateValue, 5); // Fetch and display top donators for the selected date
+                    });
+                });
+            }
+
+            // Initial call to update donators list (empty for this static version, but function exists)
+            updateTopDonatorsList('', 0); // Initialize with no date selected
         });
     </script>
 </body>
