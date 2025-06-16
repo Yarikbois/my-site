@@ -2,20 +2,27 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Вхід в адмінку</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
 
   <script>
+    // !! IMPORTANT !!
+    // Replace these with your actual Firebase project configuration
     const firebaseConfig = {
-      apiKey: "ТУТ_ТВІЙ_API_KEY",
-      authDomain: "ТВОЄ_ПРОЄКТ.firebaseapp.com",
-      projectId: "ТВОЄ_ПРОЄКТ",
-      storageBucket: "ТВОЄ_ПРОЄКТ.appspot.com",
-      messagingSenderId: "номер",
-      appId: "App ID"
+      apiKey: "YOUR_API_KEY", // <--- REPLACE THIS
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // <--- REPLACE THIS
+      projectId: "YOUR_PROJECT_ID", // <--- REPLACE THIS
+      storageBucket: "YOUR_PROJECT_ID.appspot.com", // <--- REPLACE THIS
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <--- REPLACE THIS
+      appId: "YOUR_APP_ID" // <--- REPLACE THIS
     };
-    firebase.initializeApp(firebaseConfig);
+
+    // Initialize Firebase only if it hasn't been initialized already (good practice)
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
   </script>
 
   <style>
@@ -25,20 +32,48 @@
       font-family: sans-serif;
       text-align: center;
       padding-top: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh; /* Make body at least viewport height */
+      margin: 0;
+    }
+    h1 {
+        margin-bottom: 20px;
+    }
+    form {
+        background-color: #333;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
     }
     input {
-      padding: 10px;
-      margin: 10px;
-      border: none;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #555;
       border-radius: 5px;
+      background-color: #222;
+      color: #eee;
+      width: 250px; /* Consistent width */
+      box-sizing: border-box; /* Include padding in width */
+    }
+    input::placeholder {
+        color: #bbb;
     }
     button {
-      padding: 10px 20px;
+      padding: 12px 25px;
       background: #D41811;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+      margin-top: 15px;
+    }
+    button:hover {
+      background: #a9130d;
     }
   </style>
 </head>
@@ -46,29 +81,43 @@
 <body>
   <h1>Вхід в адмін-панель</h1>
   <form id="loginForm">
-    <input type="email" id="email" placeholder="Email"><br>
-    <input type="password" id="password" placeholder="Пароль"><br>
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Пароль" required><br>
     <button type="submit">Увійти</button>
   </form>
 
   <script>
     document.getElementById('loginForm').addEventListener('submit', function(e){
-      e.preventDefault();
+      e.preventDefault(); // Prevent default form submission
+
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
       firebase.auth().signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
+        // Signed in successfully
         const user = userCredential.user;
+        console.log("User logged in:", user.email);
+
+        // !! IMPORTANT !!
+        // This is a basic hardcoded check. For production, consider:
+        // 1. Storing admin UIDs in Firebase Firestore/Realtime Database
+        // 2. Using Firebase Custom Claims
+        // This current method means anyone who knows the admin email and password can get in if they hit the login page.
+        // It also means the admin email is exposed in the client-side code.
         if (user.email === "yarikphoto26@gmail.com") {
-          window.location.href = "admin.html";
+          window.location.href = "admin.html"; // Redirect to admin page
         } else {
-          alert("Відмовлено у доступі!");
-          firebase.auth().signOut();
+          alert("Ви не маєте доступу!");
+          firebase.auth().signOut(); // Log out non-admin users immediately
         }
       })
       .catch((error) => {
-        alert("Помилка входу: " + error.message);
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error("Firebase Login Error:", errorCode, errorMessage);
+        alert("Помилка входу: " + errorMessage); // Display user-friendly error message
       });
     });
   </script>
