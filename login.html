@@ -3,67 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Вхід в адмінку</title>
+  <title>Вхід та Реєстрація</title>
+  
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
 
   <script>
-    // !! IMPORTANT !!
-    // Replace these with your actual Firebase project configuration
+    // Ваша реальна конфігурація Firebase
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyB2ZDlk8AOvhthA6Yw43xkTa-yB2ghgFXo",
+      authDomain: "sfkn-93305.firebaseapp.com",
+      projectId: "sfkn-93305",
+      storageBucket: "sfkn-93305.firebasestorage.app",
+      messagingSenderId: "1000070012129",
+      appId: "1:1000070012129:web:3e021aa7220bcf6daaeba0",
+      measurementId: "G-P6424DVQW9"
     };
 
-    // Initialize Firebase only if it hasn't been initialized already (good practice)
+    // Ініціалізація Firebase, якщо ще не ініціалізовано
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
+    const db = firebase.firestore(); // Ініціалізація Firestore
   </script>
 
   <style>
     body {
       background-color: #111;
       color: #fff;
-      font-family: 'Roboto', sans-serif;
+      font-family: sans-serif;
       text-align: center;
       padding-top: 50px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       min-height: 100vh;
-      margin: 0;
     }
-    h1 {
-      color: #D41811;
-      margin-bottom: 30px;
-      font-size: 2.5rem;
-    }
-    form {
+    .form-container {
       background-color: #222;
-      padding: 40px;
+      padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
       width: 100%;
       max-width: 400px;
+      margin-bottom: 20px;
     }
     input {
-      width: calc(100% - 20px);
       padding: 12px;
       margin: 10px 0;
-      border: 1px solid #444;
+      border: 1px solid #333;
       border-radius: 5px;
+      width: calc(100% - 24px);
       background-color: #333;
       color: #fff;
-      font-size: 1rem;
-    }
-    input::placeholder {
-      color: #888;
     }
     button {
       padding: 12px 25px;
@@ -72,61 +66,240 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 1.1rem;
-      font-weight: bold;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      margin-top: 20px;
-      width: 100%;
+      font-size: 16px;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
     }
     button:hover {
-      background-color: #a3100c;
-      transform: translateY(-2px);
+      background-color: #B0150F;
+    }
+    .toggle-form-btn {
+      background: none;
+      border: none;
+      color: #007bff;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 15px;
+      text-decoration: underline;
+    }
+    .toggle-form-btn:hover {
+      color: #0056b3;
+    }
+    .forgot-password-link {
+      display: block;
+      margin-top: 10px;
+      color: #007bff;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .forgot-password-link:hover {
+      color: #0056b3;
+    }
+    #adminCheckMessage {
+      color: orange;
+      margin-top: 10px;
+      font-size: 14px;
     }
   </style>
 </head>
 
 <body>
-  <h1>Вхід в адмін-панель</h1>
-  <form id="loginForm">
-    <input type="email" id="email" placeholder="Email" required><br>
-    <input type="password" id="password" placeholder="Пароль" required><br>
-    <button type="submit">Увійти</button>
-  </form>
+  <h1>Вхід / Реєстрація</h1>
+
+  <div class="form-container" id="loginFormContainer">
+    <h2>Вхід</h2>
+    <form id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email" required><br>
+      <input type="password" id="loginPassword" placeholder="Пароль" required><br>
+      <button type="submit">Увійти</button>
+      <span class="forgot-password-link" id="forgotPasswordLink">Забули пароль?</span>
+    </form>
+    <button class="toggle-form-btn" id="showRegisterForm">Немає облікового запису? Зареєструйтесь</button>
+  </div>
+
+  <div class="form-container" id="registerFormContainer" style="display:none;">
+    <h2>Реєстрація</h2>
+    <form id="registerForm">
+      <input type="text" id="registerName" placeholder="Ваше ім'я (для контакту)" required><br>
+      <input type="email" id="registerEmail" placeholder="Email" required><br>
+      <input type="password" id="registerPassword" placeholder="Пароль" required><br>
+      <input type="password" id="registerConfirmPassword" placeholder="Підтвердіть пароль" required><br>
+      <button type="submit">Зареєструватись</button>
+    </form>
+    <button class="toggle-form-btn" id="showLoginForm">Вже маєте обліковий запис? Увійдіть</button>
+  </div>
+
+  <p id="adminCheckMessage">
+    </p>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e){
-      e.preventDefault(); // Prevent default form submission
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const showRegisterFormBtn = document.getElementById('showRegisterForm');
+    const showLoginFormBtn = document.getElementById('showLoginForm');
+    const loginFormContainer = document.getElementById('loginFormContainer');
+    const registerFormContainer = document.getElementById('registerFormContainer');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const adminCheckMessage = document.getElementById('adminCheckMessage');
 
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+    // Перемикання між формами входу та реєстрації
+    showRegisterFormBtn.addEventListener('click', () => {
+      loginFormContainer.style.display = 'none';
+      registerFormContainer.style.display = 'block';
+    });
+
+    showLoginFormBtn.addEventListener('click', () => {
+      registerFormContainer.style.display = 'none';
+      loginFormContainer.style.display = 'block';
+    });
+
+    // Логіка входу
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
 
       firebase.auth().signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        // Signed in successfully
-        const user = userCredential.user;
-        console.log("User logged in:", user.email);
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log("Користувач увійшов:", user.email, "UID:", user.uid);
+          
+          adminCheckMessage.textContent = "Перевірка прав доступу...";
 
-        // !! IMPORTANT !!
-        // This is a basic hardcoded check. For production, consider:
-        // 1. Storing admin UIDs in Firebase Firestore/Realtime Database
-        // 2. Using Firebase Custom Claims
-        // This current method means anyone who knows the admin email and password can get in if they hit the login page.
-        // It also means the admin email is exposed in the client-side code.
-        if (user.email === "yarikphoto26@gmail.com") {
-          window.location.href = "admin.html"; // Redirect to admin page
-        } else {
-          alert("Ви не маєте доступу!");
-          firebase.auth().signOut(); // Log out non-admin users immediately
-        }
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error("Firebase Login Error:", errorCode, errorMessage);
-        alert("Помилка входу: " + errorMessage); // Display user-friendly error message
-      });
+          // Перевірка адміністратора за UID з Firestore
+          db.collection("admins").doc(user.uid).get()
+            .then(doc => {
+              if (doc.exists) {
+                // Користувач є адміністратором
+                window.location.href = "admin.html";
+              } else {
+                // Користувач не є адміністратором
+                alert("Успішний вхід! Вас буде перенаправлено на головну сторінку.");
+                window.location.href = "index.html"; 
+              }
+              adminCheckMessage.textContent = ""; 
+            })
+            .catch(error => {
+              console.error("Помилка перевірки адміністратора:", error);
+              alert("Помилка під час перевірки прав доступу. Будь ласка, спробуйте ще раз.");
+              firebase.auth().signOut(); 
+              adminCheckMessage.textContent = ""; 
+            });
+        })
+        .catch((error) => {
+          let errorMessage = "Помилка входу: ";
+          switch(error.code) {
+            case "auth/invalid-email":
+              errorMessage += "Невірний формат електронної пошти.";
+              break;
+            case "auth/user-disabled":
+              errorMessage += "Цей обліковий запис було вимкнено.";
+              break;
+            case "auth/user-not-found":
+              errorMessage += "Користувача з такою електронною поштою не знайдено.";
+              break;
+            case "auth/wrong-password":
+              errorMessage += "Невірний пароль.";
+              break;
+            default:
+              errorMessage += error.message;
+          }
+          alert(errorMessage);
+          console.error("Помилка входу Firebase:", error);
+          adminCheckMessage.textContent = ""; 
+        });
     });
+
+    // Логіка реєстрації
+    registerForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+      if (password !== confirmPassword) {
+        alert("Паролі не співпадають!");
+        return;
+      }
+      if (password.length < 6) {
+        alert("Пароль повинен бути щонайменше 6 символів.");
+        return;
+      }
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log("Користувач зареєстрований:", user.email, "UID:", user.uid);
+          alert("Реєстрація успішна! Тепер ви можете увійти.");
+          
+          // Зберігаємо додаткові дані користувача у Firestore
+          return db.collection("users").doc(user.uid).set({
+            email: user.email,
+            name: name,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        })
+        .then(() => {
+          // Після успішної реєстрації та збереження даних, перемикаємося на форму входу
+          registerFormContainer.style.display = 'none';
+          loginFormContainer.style.display = 'block';
+          document.getElementById('loginEmail').value = email; 
+          document.getElementById('loginPassword').value = '';
+        })
+        .catch((error) => {
+          let errorMessage = "Помилка реєстрації: ";
+          switch(error.code) {
+            case "auth/email-already-in-use":
+              errorMessage += "Користувач з такою електронною поштою вже існує.";
+              break;
+            case "auth/invalid-email":
+              errorMessage += "Невірний формат електронної пошти.";
+              break;
+            case "auth/weak-password":
+              errorMessage += "Пароль занадто простий. Використовуйте щонайменше 6 символів.";
+              break;
+            default:
+              errorMessage += error.message;
+          }
+          alert(errorMessage);
+          console.error("Помилка реєстрації Firebase:", error);
+        });
+    });
+
+    // Логіка скидання пароля
+    forgotPasswordLink.addEventListener('click', () => {
+      const email = prompt("Будь ласка, введіть вашу електронну пошту для скидання пароля:");
+      if (email) {
+        firebase.auth().sendPasswordResetEmail(email)
+          .then(() => {
+            alert("Лист для скидання пароля надіслано на вашу електронну пошту.");
+          })
+          .catch((error) => {
+            let errorMessage = "Помилка скидання пароля: ";
+            if (error.code === "auth/user-not-found") {
+              errorMessage += "Користувача з такою електронною поштою не знайдено.";
+            } else {
+              errorMessage += error.message;
+            }
+            alert(errorMessage);
+            console.error("Помилка скидання пароля Firebase:", error);
+          });
+      }
+    });
+
+    // Додаємо слухач для відстеження стану аутентифікації
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // Користувач увійшов.
+            // Можете перенаправити їх на головну сторінку, якщо вони вже залогінені.
+        } else {
+            // Користувач вийшов.
+            console.log("Користувач не залогінений.");
+        }
+    });
+
   </script>
 </body>
 </html>
