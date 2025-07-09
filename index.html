@@ -3,1339 +3,766 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YarikOgraf - Надихаюсь життям природи та її красою</title>
-    <!-- Tailwind CSS CDN -->
+    <title>YarikOgraf - Фото та Відео</title>
+    <!-- Підключення Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Tailwind CSS custom configuration for colors and font family
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        // Custom font family 'Inter'
-                        inter: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        // Custom color palette for the website
-                        'yo-red': '#D41811',
-                        'yo-purple': '#8E44AD',
-                        'yo-green': '#2ECC71',
-                        'yo-black': '#000000',
-                        'yo-white': '#FFFFFF',
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Font Awesome for icons, provides various scalable vector icons -->
+    <!-- Підключення Font Awesome для іконок -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Global styles to prevent horizontal scrollbar caused by animations or off-screen elements */
-        html, body {
-            overflow-x: hidden;
-        }
-        /* Base body styles, applying Inter font, default background, and text color */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #000; /* Fallback default black background */
-            color: #fff; /* Default white text */
-            transition: background-color 0.5s ease; /* Smooth transition for background changes */
+            background-color: #f8fafc; /* Light gray */
+            color: #1e293b; /* Dark text */
         }
-
-        /* Custom scrollbar styling for a consistent aesthetic */
-        ::-webkit-scrollbar {
-            width: 8px; /* Width of the scrollbar */
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)), url('https://placehold.co/1920x1080/475569/e2e8f0?text=Hero+Image') no-repeat center center/cover;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
-        ::-webkit-scrollbar-track {
-            background: #222; /* Color of the scrollbar track */
+        .section-title {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.5rem;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #888; /* Color of the scrollbar thumb */
-            border-radius: 4px; /* Rounded corners for the thumb */
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555; /* Color of the scrollbar thumb on hover */
-        }
-
-        /* Burger icon animation for open/close state */
-        .burger-icon {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            width: 30px;
-            height: 25px;
-            cursor: pointer;
-            z-index: 50; /* Ensures the burger icon is above the sidebar */
-        }
-        .burger-icon div {
-            width: 100%;
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 60px;
             height: 3px;
-            background-color: #D41811; /* Changed to yo-red */
-            border-radius: 2px;
-            transition: all 0.3s linear; /* Smooth transition for burger lines */
-            transform-origin: 1px; /* Pivot point for rotations */
+            background-color: #f97316; /* Orange 500 */
+            border-radius: 9999px;
         }
-        .burger-icon.open div:nth-child(1) {
-            transform: rotate(-45deg); /* Rotates the top line to form an 'X' */
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        .burger-icon.open div:nth-child(2) {
-            opacity: 0; /* Hides the middle line */
-            transform: translateX(20px); /* Moves the middle line out of view */
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
         }
-        .burger-icon.open div:nth-child(3) {
-            transform: rotate(45deg); /* Rotates the bottom line to form an 'X' */
-        }
-
-        /* Sidebar transition for sliding in from the right */
-        .sidebar {
-            transition: right 0.3s ease-in-out; /* Smooth slide animation */
-            right: -256px; /* Hidden by default, positioned off-screen to the right (w-64 = 256px) */
-        }
-        .sidebar.open {
-            right: 0; /* Moves the sidebar into the visible area */
-        }
-        /* Overlay that appears when the sidebar is open, covering main content */
-        .content-overlay {
+        /* Modal styles */
+        .modal {
             display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Loading overlay */
+        .loading-overlay {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-            z-index: 35; /* Positioned below sidebar, above main content */
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 101;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
-        .content-overlay.active {
-            display: block; /* Becomes visible when active */
+        .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #f97316; /* Orange */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
         }
-
-        /* Dimming and blurring effect for main content when sidebar is open */
-        main.dim-content {
-            filter: brightness(0.3) blur(3px); /* Dims and blurs the content */
-            pointer-events: none; /* Makes the content non-interactive */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
-        /* Image hover effect: scales the image up */
-        .image-hover-scale {
-            transition: transform 0.3s ease-in-out; /* Smooth scaling transition */
+        /* Message box */
+        .message-box {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 102;
+            text-align: center;
+            border: 1px solid;
         }
-        .image-hover-scale:hover {
-            transform: scale(1.1); /* Scales the image to 110% on hover */
+        .message-box.success {
+            background-color: #d1fae5; /* Green 100 */
+            color: #065f46; /* Green 800 */
+            border-color: #a7f3d0; /* Green 200 */
         }
-
-        /* Video container hover effect: scales the video up */
-        /* This is commented out as video tags are replaced by image placeholders to fix the error. */
-        /* .video-container video {
-            transition: transform 0.3s ease-in-out;
+        .message-box.error {
+            background-color: #fee2e2; /* Red 100 */
+            color: #991b1b; /* Red 800 */
+            border-color: #fca5a5; /* Red 200 */
         }
-        .video-container:hover video {
-            transform: scale(1.1);
-        } */
-
-        /* Styles for the "dipped" button */
-        .dipped-button {
-            transition: transform 0.1s ease-out; /* Smooth transition for the dip effect */
+        .message-box button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #f97316;
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        .dipped-button:active {
-            transform: scale(0.95); /* Shrink slightly when clicked */
+        .message-box button:hover {
+            background-color: #ea580c;
         }
     </style>
 </head>
-<body class="font-inter bg-gradient-to-br from-indigo-900 to-purple-900 text-white min-h-screen transition-all duration-500 overflow-x-hidden">
-    <!-- Header section, fixed at the top with branding and burger menu icon -->
-    <header class="bg-yo-black text-yo-white p-4 md:p-6 flex justify-between items-center shadow-lg relative z-30 rounded-b-md">
-        <div class="flex items-center">
-            <!-- Logo area: "Y" in red, "O" with gradient text -->
-            <div class="text-3xl font-bold flex items-baseline">
-                <span class="text-yo-red">Y</span><span class="text-transparent bg-gradient-to-r from-yo-purple to-yo-green bg-clip-text">O</span>
+<body class="leading-normal tracking-normal">
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p class="mt-4 text-lg text-gray-700">Завантаження...</p>
+    </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <p id="messageText"></p>
+        <button onclick="hideMessageBox()">OK</button>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gray-800 text-white shadow-md fixed w-full z-50">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" class="text-xl font-bold text-orange-500 hover:text-orange-400">YarikOgraf</a>
+            <div class="hidden md:flex space-x-4">
+                <a href="#hero" class="hover:text-orange-500">Головна</a>
+                <a href="#gallery" class="hover:text-orange-500">Галерея</a>
+                <a href="#about" class="hover:text-orange-500">Про мене</a>
+                <a href="#services" class="hover:text-orange-500">Послуги</a>
+                <a href="#contact" class="hover:text-orange-500">Контакти</a>
+                <a href="#support" class="hover:text-orange-500">Підтримка</a>
+                <a href="#donate" class="hover:text-orange-500">Підтримати</a>
             </div>
-            <!-- Site name, visible on larger screens -->
-            <h1 class="text-xl md:text-2xl font-bold ml-4 hidden md:block">YarikOgraf</h1>
-        </div>
-        <!-- Slogan, centered on medium and larger screens -->
-        <p class="hidden md:block text-sm italic absolute left-1/2 transform -translate-x-1/2">«Надихаюсь життям природи та її красою»</p>
-        <!-- Burger Icon for toggling the sidebar menu -->
-        <!-- Fixed position for reliability -->
-        <div class="burger-icon fixed top-4 right-4 md:right-6 z-50" id="burger-icon" aria-label="Переключити навігаційне меню">
-            <div class="bg-yo-red"></div>
-            <div class="bg-yo-red"></div>
-            <div class="bg-yo-red"></div>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </nav>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden bg-gray-700 hidden">
+            <a href="#hero" class="block py-2 px-4 text-sm hover:bg-gray-600">Головна</a>
+            <a href="#gallery" class="block py-2 px-4 text-sm hover:bg-gray-600">Галерея</a>
+            <a href="#about" class="block py-2 px-4 text-sm hover:bg-gray-600">Про мене</a>
+            <a href="#services" class="block py-2 px-4 text-sm hover:bg-gray-600">Послуги</a>
+            <a href="#contact" class="block py-2 px-4 text-sm hover:bg-gray-600">Контакти</a>
+            <a href="#support" class="block py-2 px-4 text-sm hover:bg-gray-600">Підтримка</a>
+            <a href="#donate" class="block py-2 px-4 text-sm hover:bg-gray-600">Підтримати</a>
         </div>
     </header>
 
-    <!-- Sidebar Navigation Menu -->
-    <nav id="sidebar" class="fixed top-0 h-full w-64 bg-yo-black text-yo-white p-6 z-40 shadow-xl sidebar">
-        <ul class="pt-20">
-            <!-- Navigation links for different pages using data-page for JS navigation -->
-            <li class="mb-4">
-                <a href="#" data-page="home" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-home">Головна</a>
-            </li>
-            <li class="mb-4">
-                <a href="#" data-page="buy-photo" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-buy-photo">Купити фото</a>
-            </li>
-            <li class="mb-4">
-                <a href="#" data-page="buy-video" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-buy-video">Купити відео</a>
-            </li>
-            <li class="mb-4">
-                <a href="#" data-page="order-photoshoot" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-order-photoshoot">Замовити фотосесію</a>
-            </li>
-            <li class="mb-4">
-                <a href="#" data-page="support" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-support">Підтримка</a>
-            </li>
-            <li class="mb-4">
-                <a href="#" data-page="donate" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-donate">Допомога</a>
-            </li>
-            <li class="mb-4">
-                <a href="#" data-page="admin" class="block text-xl font-semibold hover:text-yo-red rounded-md" id="nav-admin">Адмін</a>
-            </li>
-        </ul>
-        <!-- User ID display at the bottom of the sidebar (remains static for HTML version) -->
-        <div class="absolute bottom-6 right-6 text-sm text-gray-400" id="user-id-display">
-            Ваш ID: гость
-        </div>
-    </nav>
-
-    <!-- Content Overlay: appears when the sidebar is open to dim the main content -->
-    <div id="content-overlay" class="content-overlay"></div>
-
-    <!-- Main Content Area: holds all the page sections -->
-    <main id="content-area" class="p-4 md:p-8 min-h-screen transition-all duration-300">
-        <!-- Home Page Content Section -->
-        <section id="home-page" class="page active p-6 md:p-10 rounded-xl shadow-2xl">
-            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Ласкаво просимо до YarikOgraf!</h2>
-            <div class="max-w-4xl mx-auto text-lg leading-relaxed text-center mb-12 text-gray-200">
-                <p class="mb-4">Привіт! Мене звати Ярослав, і фотографія та відеозйомка — це більше ніж просто хобі. Це справа, яка дозволяє мені передавати настрій, емоції та моменти життя, які хочеться зберегти назавжди.</p>
-                <p class="mb-4">Мій шлях у цій сфері почався кілька років тому зі звичайного фотоапарата, яким я знімав природу та людей навколо. Згодом це перетворилося у справжню пристрасть, що мотивує мене постійно вдосконалювати свої навички та відкривати нові напрями.</p>
-                <p class="mb-4">Я прагну створювати контент, який викликає емоції та залишається в пам’яті. Зараз я працюю над розширенням своїх послуг, щоб кожен міг придбати унікальні фото та відео або підтримати мій проєкт.</p>
-                <p>Долучайтеся до моєї творчості — буду радий новим знайомствам і спільним проєктам!</p>
-            </div>
-
-            <!-- Search input section -->
-            <div class="max-w-xl mx-auto mb-12">
-                <label for="search-input" class="sr-only">Пошук фото/відео</label>
-                <div class="relative">
-                    <input
-                        type="text"
-                        id="search-input"
-                        placeholder="Пошук фото/відео за #тегом..."
-                        class="w-full p-3 pl-10 pr-4 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-yo-red"
-                    />
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-400 mt-2 text-center">Наприклад: #природа, #місто, #квітка</p>
-            </div>
-
-            <h3 class="text-2xl md:text-3xl font-bold text-center mb-8 text-yo-white">Галерея робіт</h3>
-            <div id="home-gallery-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                <!-- Content will be dynamically loaded here from `displayGalleryItems` -->
-            </div>
-
-            <!-- Action buttons for navigation from homepage -->
-            <div class="flex flex-col md:flex-row justify-center items-center gap-6">
-                <button class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300" id="btn-show-buy-photo" data-page="buy-photo">Ще фото</button>
-                <button class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300" id="btn-show-donate-home" data-page="donate">Підтримай мене</button>
-            </div>
-            <!-- ADD BUTTON HERE -->
-            <div class="flex flex-col md:flex-row justify-center items-center gap-6 mt-12">
-                <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 dipped-button" id="dippedButton">
-                    Натисни мене!
-                </button>
+    <main class="pt-16">
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section h-screen flex items-center justify-center text-center px-4">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">YarikOgraf: Ваш Світ через Мій Об'єктив</h1>
+                <p class="text-lg md:text-xl mb-8">Захоплюючі моменти, збережені назавжди.</p>
+                <a href="#gallery" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-full shadow-lg">Переглянути Галерею</a>
             </div>
         </section>
 
-        <!-- Buy Photo Page Content -->
-        <section id="buy-photo-page" class="page hidden bg-gradient-to-br from-pink-700 to-purple-800 p-6 md:p-10 rounded-xl shadow-2xl">
-            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Знайдіть та придбайте ідеальні фото</h2>
-            <p class="text-center text-lg text-gray-200 mb-8">
-                Тут ви зможете знайти та придбати унікальні фото для вашої цілі та мети. Зверніть увагу: завантажити фото можна буде протягом однієї доби після оплати. Після цього купівлю потрібно буде повторити.
-            </p>
-            <div id="buy-photo-gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Photo items will be dynamically loaded here from `displayGalleryItems` -->
+        <!-- Gallery Section -->
+        <section id="gallery" class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-8 section-title">Моя Галерея</h2>
+                <div id="gallery-items-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Gallery items will be loaded here by JavaScript -->
+                </div>
             </div>
         </section>
 
-        <!-- Buy Video Page Content -->
-        <section id="buy-video-page" class="page hidden bg-gradient-to-br from-green-700 to-blue-800 p-6 md:p-10 rounded-xl shadow-2xl">
-            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Знайдіть цікаві відео</h2>
-            <p class="text-center text-lg text-gray-200 mb-8">
-                Тут ви знайдете цікаві відео, що захоплять вашу увагу. Пам'ятайте: завантажити відео можна протягом однієї доби після оплати.
-            </p>
-            <div id="buy-video-gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Video items will be dynamically loaded here from `displayGalleryItems` -->
-            </div>
-        </section>
-
-        <!-- Order Photoshoot Page Content -->
-        <section id="order-photoshoot-page" class="page hidden bg-gradient-to-br from-red-700 to-rose-800 p-6 md:p-10 rounded-xl shadow-2xl">
-            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Замовити фотосесію</h2>
-            <p class="text-center text-lg text-gray-200 mb-8">
-                Оберіть зручний для вас день та час для фотосесії. Запис доступний раз на годину.
-            </p>
-
-            <div class="max-w-3xl mx-auto bg-gray-900 rounded-lg p-6 shadow-lg border border-gray-700">
-                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Календар доступності</h3>
-                <div id="calendar" class="grid grid-cols-7 gap-1 text-center text-yo-white rounded-md">
-                    <!-- Weekday Headers -->
-                    <div class="font-bold text-gray-400 py-2">Пн</div>
-                    <div class="font-bold text-gray-400 py-2">Вт</div>
-                    <div class="font-bold text-gray-400 py-2">Ср</div>
-                    <div class="font-bold text-gray-400 py-2">Чт</div>
-                    <div class="font-bold text-gray-400 py-2">Пт</div>
-                    <div class="font-bold text-gray-400 py-2">Сб</div>
-                    <div class="font-bold text-gray-400 py-2">Нд</div>
-                    <!-- Calendar Days (example, dynamic generation in JS would be better for real app) -->
-                    <!-- Filler days for the start of the month -->
-                    <div class="py-2 text-gray-600"></div>
-                    <div class="py-2 text-gray-600"></div>
-                    <div class="py-2 text-gray-600"></div>
-                    <div class="py-2 text-gray-600"></div>
-                    <!-- Actual days -->
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-01">1</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-02">2</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-03">3</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-04">4</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-05">5</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800 selected-day border-2 border-yo-red" data-date="2025-06-06">6</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-07">7</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-08">8</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-09">9</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-10">10</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-11">11</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-12">12</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-13">13</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-14">14</div>
-                    <div class="calendar-day p-2 rounded-lg cursor-pointer hover:bg-gray-700 bg-gray-800" data-date="2025-06-15">15</div>
-                </div>
-
-                <div class="mt-8">
-                    <h4 class="text-lg font-bold mb-4 text-yo-white">Обраний день: <span id="selected-date">6 червня 2025</span></h4>
-                    <label for="preferred-time" class="block text-gray-300 text-sm font-bold mb-2">Оберіть час:</label>
-                    <select id="preferred-time" class="bg-gray-800 text-white p-3 rounded-md w-full mb-4 focus:outline-none focus:ring-2 focus:ring-yo-red">
-                        <option value="">Оберіть час</option>
-                        <option value="9:00">09:00</option>
-                        <option value="10:00">10:00</option>
-                        <option value="11:00">11:00</option>
-                        <option value="12:00">12:00</option>
-                        <option value="13:00">13:00</option>
-                        <option value="14:00">14:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                        <option value="17:00">17:00</option>
-                    </select>
-
-                    <label for="contact-instagram" class="block text-gray-300 text-sm font-bold mb-2">Ваш Instagram (або Gmail):</label>
-                    <input type="text" id="contact-instagram" placeholder="@ваш_інстаграм або ваш_email@gmail.com" class="bg-gray-800 text-white p-3 rounded-md w-full mb-4 focus:outline-none focus:ring-2 focus:ring-yo-red" />
-
-                    <button class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" id="btn-order-photoshoot">Записатись на фотосесію</button>
-                </div>
-
-                <p class="text-center text-gray-400 text-sm mt-6">
-                    Також ви можете зв'язатись зі мною напряму через <a href="https://www.instagram.com/foto_yarik/" target="_blank" class="text-yo-red hover:underline">Instagram</a> або <a href="mailto:yarikphoto26@gmail.com" class="text-yo-red hover:underline">Gmail</a>.
+        <!-- About Section -->
+        <section id="about" class="py-12 bg-gray-100">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold mb-8 section-title">Про мене</h2>
+                <p class="text-lg leading-relaxed max-w-2xl mx-auto">
+                    Привіт! Я Ярослав, ваш фотограф та відеограф. Моя пристрасть – це зйомка унікальних моментів, перетворюючи їх на незабутні спогади. Я вірю, що кожна людина та кожна подія має свою історію, і моя місія – розповісти її через об'єктив.
                 </p>
             </div>
         </section>
 
-        <!-- Support Page Content -->
-        <section id="support-page" class="page hidden bg-gradient-to-br from-fuchsia-700 to-purple-800 p-6 md:p-10 rounded-xl shadow-2xl">
-            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Підтримка</h2>
-            <p class="text-center text-lg text-gray-200 mb-8">
-                Якщо у вас виникли питання або проблеми, спробуйте знайти відповідь у розділі "Часті питання". Якщо ви не знайшли потрібної інформації, будь ласка, залиште своє ім'я та опис проблеми, і я з вами зв'яжуся.
-            </p>
-
-            <div class="max-w-3xl mx-auto bg-gray-900 rounded-lg p-6 shadow-lg border border-gray-700 mb-8">
-                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Часті питання</h3>
-                <div class="space-y-4 text-gray-200">
-                    <div>
-                        <h4 class="font-bold text-lg text-yo-red">Як завантажити куплені фото/відео?</h4>
-                        <p>Після успішної оплати кнопка "Купити" на сторінці продукту зміниться на "Завантажити". Ви можете завантажити файл протягом 24 годин.</p>
+        <!-- Services Section -->
+        <section id="services" class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-8 section-title">Мої Послуги</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Service Card 1 -->
+                    <div class="bg-gray-50 rounded-lg shadow-md p-6 text-center card">
+                        <i class="fas fa-camera-retro text-4xl text-orange-500 mb-3"></i>
+                        <h3 class="text-xl font-semibold mb-2">Фотосесії</h3>
+                        <p class="text-gray-700">Індивідуальні, сімейні, весільні.</p>
+                        <button onclick="openModal('photoshootBookingModal')" class="mt-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full">Забронювати</button>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-lg text-yo-red">Які способи оплати доступні?</h4>
-                        <p>Наразі ми працюємо над інтеграцією платіжних систем. Оплата буде додана після повної готовності сайту.</p>
+                    <!-- Service Card 2 -->
+                    <div class="bg-gray-50 rounded-lg shadow-md p-6 text-center card">
+                        <i class="fas fa-video text-4xl text-orange-500 mb-3"></i>
+                        <h3 class="text-xl font-semibold mb-2">Відеозйомка</h3>
+                        <p class="text-gray-700">Зйомка подій, рекламних роликів.</p>
+                        <button onclick="openModal('photoshootBookingModal')" class="mt-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full">Забронювати</button>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-lg text-yo-red">Чи можу я замовити індивідуальну фотосесію?</h4>
-                        <p>Так, ви можете замовити фотосесію через розділ "Замовити фотосесію", обравши зручну дату та час у календарі.</p>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-lg text-yo-red">Як я можу підтримати ваш проєкт?</h4>
-                        <p>Ви можете підтримати проєкт, зробивши донат у розділі "Допомога". Будь-яка сума важлива!</p>
+                    <!-- Service Card 3 -->
+                    <div class="bg-gray-50 rounded-lg shadow-md p-6 text-center card">
+                        <i class="fas fa-palette text-4xl text-orange-500 mb-3"></i>
+                        <h3 class="text-xl font-semibold mb-2">Ретуш та Монтаж</h3>
+                        <p class="text-gray-700">Професійна обробка фотографій та відео.</p>
+                        <button onclick="openModal('supportRequestModal')" class="mt-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full">Запит</button>
                     </div>
                 </div>
-            </div>
-
-            <div class="max-w-3xl mx-auto bg-gray-900 rounded-lg p-6 shadow-lg border border-gray-700">
-                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Зв'яжіться зі мною</h3>
-                <form id="support-form">
-                    <div class="mb-4">
-                        <label for="support-name" class="block text-gray-300 text-sm font-bold mb-2">Ваше ім'я:</label>
-                        <input type="text" id="support-name" placeholder="Ваше ім'я" class="bg-gray-800 text-white p-3 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-yo-red" required>
-                    </div>
-                    <div class="mb-6">
-                        <label for="support-problem" class="block text-gray-300 text-sm font-bold mb-2">Опис проблеми:</label>
-                        <textarea id="support-problem" rows="5" placeholder="Опишіть вашу проблему або питання" class="bg-gray-800 text-white p-3 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-yo-red" required></textarea>
-                    </div>
-                    <button type="submit" class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full">Надіслати запит</button>
-                </form>
             </div>
         </section>
 
-        <!-- Donate Page Content -->
-        <section id="donate-page" class="page hidden bg-gradient-to-br from-red-800 to-black p-6 md:p-10 rounded-xl shadow-2xl">
-            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Підтримай проєкт YarikOgraf</h2>
-            <p class="text-center text-lg text-gray-200 mb-8">
-                Дякую вам за підтримку та процвітання цього сайту та моєї роботи! Кожен ваш внесок допомагає мені творити кращий контент.
-            </p>
-
-            <div class="max-w-3xl mx-auto bg-gray-900 rounded-lg p-6 shadow-lg border border-gray-700">
-                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Зробити донат</h3>
-                <div class="mb-4">
-                    <label for="donor-name" class="block text-gray-300 text-sm font-bold mb-2">Ваше ім'я (необов'язково, для списку донатерів):</label>
-                    <input
-                        type="text"
-                        id="donor-name"
-                        placeholder="Ваше ім'я або нік"
-                        class="bg-gray-800 text-white p-3 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-yo-red"
-                    />
+        <!-- Contact Section -->
+        <section id="contact" class="py-12 bg-gray-100">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold mb-8 section-title">Зв'яжіться зі мною</h2>
+                <div class="flex flex-col md:flex-row justify-center items-center gap-6">
+                    <div class="flex items-center text-lg">
+                        <i class="fas fa-envelope text-orange-500 mr-2"></i>
+                        <a href="mailto:yarikograf@gmail.com" class="hover:underline">yarikograf@gmail.com</a>
+                    </div>
+                    <div class="flex items-center text-lg">
+                        <i class="fab fa-instagram text-orange-500 mr-2"></i>
+                        <a href="https://www.instagram.com/yarikograf/" target="_blank" class="hover:underline">@yarikograf</a>
+                    </div>
+                    <div class="flex items-center text-lg">
+                        <i class="fab fa-telegram-plane text-orange-500 mr-2"></i>
+                        <a href="https://t.me/yarikograf" target="_blank" class="hover:underline">@yarikograf</a>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                    <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 donate-button-fixed" data-amount="1">$1</button>
-                    <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 donate-button-fixed" data-amount="10">$10</button>
-                    <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 donate-button-fixed" data-amount="100">$100</button>
-                    <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 donate-button-fixed" data-amount="200">$200</button>
-                    <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 donate-button-fixed" data-amount="500">$500</button>
-                    <input
-                        type="number"
-                        id="custom-donation-amount"
-                        placeholder="10.000+"
-                        min="1"
-                        class="bg-gray-800 text-white py-4 text-xl text-center rounded-md focus:outline-none focus:ring-2 focus:ring-yo-red"
-                    />
-                </div>
-                <button class="bg-black text-white px-6 py-3 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" id="btn-custom-donate">Зробити донат</button>
-            </div>
-
-            <div class="max-w-3xl mx-auto bg-gray-900 rounded-lg p-6 shadow-lg border border-gray-700 mt-8">
-                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Топ 10 донатерів</h3>
-                <ul id="top-donators-list" class="list-disc list-inside text-gray-300">
-                    <li class="text-gray-400">Наразі немає донатерів. Будьте першим!</li>
-                </ul>
             </div>
         </section>
 
-        <!-- Admin Page Content -->
-        <section id="admin-page" class="page hidden bg-gradient-to-br from-gray-700 to-gray-900 p-6 md:p-10 rounded-xl shadow-2xl">
-            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-yo-white">Сторінка адміністратора</h2>
-            <p class="text-center text-lg text-gray-200 mb-8">
-                Тут ви можете керувати контентом та переглядати симульовану статистику сайту. Зверніть увагу: усі зміни, внесені тут, тимчасові та існують лише протягом поточної сесії браузера.
-                Для постійного зберігання даних та повноцінної автентифікації потрібен бекенд.
-            </p>
-            <div class="max-w-3xl mx-auto bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700 mb-8">
-                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white">Завантажити новий контент</h3>
-                <form id="upload-form" class="space-y-4">
-                    <div>
-                        <label for="upload-file" class="block text-gray-300 text-sm font-bold mb-2">Оберіть файл (фото/відео):</label>
-                        <input type="file" id="upload-file" accept="image/*,video/*" class="w-full p-3 bg-gray-900 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-yo-red" required>
-                    </div>
-                    <div>
-                        <label for="file-description" class="block text-gray-300 text-sm font-bold mb-2">Опис файлу:</label>
-                        <textarea id="file-description" rows="3" placeholder="Детальний опис фото або відео..." class="w-full p-3 bg-gray-900 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-yo-red" required></textarea>
-                        <button type="button" id="generate-description-btn" class="mt-2 bg-black text-white px-4 py-2 rounded-md border-2 border-white hover:bg-white hover:text-black transition-colors duration-300">
-                            Сгенерувати опис ✨
-                        </button>
-                        <p class="text-sm text-gray-400 mt-2">Використовуйте ШІ для генерації опису та хештегів.</p>
-                    </div>
-                    <div>
-                        <label for="file-hashtags" class="block text-gray-300 text-sm font-bold mb-2">Хештеги (через пробіл):</label>
-                        <input type="text" id="file-hashtags" placeholder="#природа #місто #портрет" class="w-full p-3 bg-gray-900 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-yo-red" required>
-                    </div>
-                    <div>
-                        <label for="file-price" class="block text-gray-300 text-sm font-bold mb-2">Ціна (USD):</label>
-                        <input type="number" id="file-price" placeholder="5.00" step="0.01" min="1" class="w-full p-3 bg-gray-900 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-yo-red" required>
-                    </div>
-                    <button type="submit" class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full">Завантажити контент</button>
-                </form>
-
-                <h3 class="text-xl md:text-2xl font-bold mb-6 text-center text-yo-white mt-8">Завантажений контент (поточна сесія)</h3>
-                <div id="uploaded-content-list" class="space-y-4">
-                    <p class="text-gray-400 text-center">Тут буде відображено завантажений вами контент.</p>
+        <!-- Support Section -->
+        <section id="support" class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-8 section-title">Підтримка</h2>
+                <div class="max-w-md mx-auto bg-gray-50 p-6 rounded-lg shadow-md">
+                    <p class="text-md text-center mb-4">Маєте запитання або проблему? Залиште свій запит.</p>
+                    <form id="supportForm" class="space-y-4">
+                        <div>
+                            <label for="supportName" class="block text-gray-700 text-sm font-bold mb-1">Ваше ім'я:</label>
+                            <input type="text" id="supportName" name="supportName" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                        </div>
+                        <div>
+                            <label for="problemDescription" class="block text-gray-700 text-sm font-bold mb-1">Опис проблеми:</label>
+                            <textarea id="problemDescription" name="problemDescription" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full">Надіслати запит</button>
+                    </form>
                 </div>
             </div>
+        </section>
 
-            <div class="max-w-3xl mx-auto bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700 mt-8">
-                <h3 class="text-xl md:text-2xl font-bold text-center mb-6 text-yo-white">Статистика сайту (симуляція)</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
-                    <div class="bg-gray-900 p-4 rounded-md shadow-inner border border-gray-700">
-                        <p class="text-yo-green text-3xl font-bold">12,345</p>
-                        <p class="text-gray-400">Загальні перегляди</p>
-                    </div>
-                    <div class="bg-gray-900 p-4 rounded-md shadow-inner border border-gray-700">
-                        <p class="text-yo-green text-3xl font-bold">5,678</p>
-                        <p class="text-gray-400">Унікальні відвідування</p>
-                    </div>
-                    <div class="bg-gray-900 p-4 rounded-md shadow-inner border на border-gray-700">
-                        <p class="text-yo-green text-3xl font-bold">234</p>
-                        <p class="text-gray-400">Покупки</p>
-                    </div>
-                    <div class="bg-gray-900 p-4 rounded-md shadow-inner border border-gray-700">
-                        <p class="text-yo-green text-3xl font-bold">$1,567</p>
-                        <p class="text-gray-400">Зібрано донатів</p>
-                    </div>
-                </div>
-                <div class="mt-6 text-center text-gray-400 text-sm">
-                    (Ці дані є статичними та представлені для демонстрації. Для реальних показників потрібен бекенд.)
+        <!-- Donate Section -->
+        <section id="donate" class="py-12 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-8 section-title">Підтримати мій проект</h2>
+                <div class="max-w-md mx-auto bg-gray-50 p-6 rounded-lg shadow-md">
+                    <p class="text-md text-center mb-4">Ваша підтримка допомагає мені створювати більше якісного контенту.</p>
+                    <form id="donateForm" class="space-y-4">
+                        <div>
+                            <label for="donorName" class="block text-gray-700 text-sm font-bold mb-1">Ваше ім'я (необов'язково):</label>
+                            <input type="text" id="donorName" name="donorName" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+                        <div>
+                            <label for="donationAmount" class="block text-gray-700 text-sm font-bold mb-1">Сума донату (UAH):</label>
+                            <input type="number" id="donationAmount" name="donationAmount" min="1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                        </div>
+                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full">Зробити донат</button>
+                    </form>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Scroll-to-Top Button: fixed button to scroll page back to top -->
-    <button id="scrollToTopBtn" class="fixed bottom-6 right-6 bg-yo-black text-yo-white p-4 rounded-full shadow-lg hover:bg-gray-800 transition-all duration-300 hidden">
-        <i class="fas fa-arrow-up text-2xl"></i>
-    </button>
-
-    <!-- Modal for notifications: custom alert/confirmation dialog -->
-    <div id="app-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
-        <div class="bg-gray-900 p-8 rounded-lg shadow-xl border border-gray-700 max-w-sm text-center rounded-md">
-            <p id="modal-message" class="text-lg text-white mb-6"></p>
-            <button class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full" id="modal-close-button">Закрити</button>
-        </div>
-    </div>
-
-    <!-- Payment Modal (replaces buy confirmation) -->
-    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
-        <div class="bg-gray-900 p-8 rounded-lg shadow-xl border border-gray-700 max-w-md w-full text-center rounded-md">
-            <h3 class="text-2xl font-bold text-yo-white mb-6">Підтвердіть покупку</h3>
-            <p id="payment-item-details" class="text-lg text-gray-300 mb-4"></p>
-            <div class="mb-4">
-                <label for="payment-email" class="block text-gray-300 text-sm font-bold mb-2 text-left">Ваш Email:</label>
-                <input type="email" id="payment-email" placeholder="ваш.email@example.com" class="bg-gray-800 text-white p-3 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-yo-red" required>
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-10">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 YarikOgraf. Всі права захищені.</p>
+            <div class="flex justify-center space-x-4 mt-3">
+                <a href="https://www.instagram.com/yarikograf/" target="_blank" class="text-gray-400 hover:text-orange-500"><i class="fab fa-instagram text-xl"></i></a>
+                <a href="https://t.me/yarikograf" target="_blank" class="text-gray-400 hover:text-orange-500"><i class="fab fa-telegram-plane text-xl"></i></a>
+                <a href="mailto:yarikograf@gmail.com" class="text-gray-400 hover:text-orange-500"><i class="fas fa-envelope text-xl"></i></a>
             </div>
-            <button id="process-payment-btn" class="bg-black text-white px-6 py-3 rounded-none border-2 border-white hover:bg-white hover:text-black transition-colors duration-300 w-full mt-4">
-                Оплатити через WayForPay
-            </button>
-            <button id="cancel-payment-btn" class="bg-gray-700 text-white px-6 py-3 rounded-none border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-colors duration-300 w-full mt-2">
-                Скасувати
-            </button>
-            <p class="text-xs text-gray-500 mt-4">Merchant account: '22fa25a88590bae73aaf215717ff6c5ce66a8805' (симуляція)</p>
         </div>
-    </div>
-
-    <!-- Footer section of the website -->
-    <footer class="bg-yo-black text-yo-white p-6 md:p-8 text-center shadow-inner mt-12 rounded-t-md">
-        <div class="flex items-baseline justify-center mb-4">
-            <!-- Footer Logo -->
-            <span class="text-3xl font-bold text-yo-red">Y</span><span class="text-3xl font-bold text-transparent bg-gradient-to-r from-yo-purple to-yo-green bg-clip-text">O</span>
-        </div>
-        <p class="text-sm text-gray-400">&copy; 2025 YarikOgraf. Всі права захищено.</p>
     </footer>
 
-    <!-- Custom JavaScript for interactivity -->
-    <script type="module">
-        let currentPage = 'home'; // Tracks the currently active page
-        const UPLOADED_ITEMS_KEY = 'yarikograf_uploaded_items'; // Key for localStorage
-        const PURCHASED_ITEMS_KEY = 'yarikograf_purchased_items'; // Key for localStorage for purchased items
-        const MERCHANT_ACCOUNT = '22fa25a88590bae73aaf215717ff6c5ce66a8805'; // WayForPay Merchant Account
+    <!-- Modals -->
 
-        // Store gallery items and purchased items globally (in-memory for this static version)
-        let galleryItems = [];
-        let purchasedItems = {}; // { itemId: true/false }
+    <!-- Item Detail Modal -->
+    <div id="itemDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('itemDetailModal')">&times;</span>
+            <h3 id="modalItemTitle" class="text-2xl font-bold mb-3 text-gray-800"></h3>
+            <div class="mb-3">
+                <img id="modalItemImage" src="" alt="Gallery Item" class="w-full h-auto rounded-md shadow-sm mb-2">
+                <video id="modalItemVideo" src="" controls class="w-full h-auto rounded-md shadow-sm mb-2 hidden"></video>
+            </div>
+            <p id="modalItemDescription" class="text-gray-700 mb-2"></p>
+            <p id="modalItemHashtags" class="text-gray-500 text-sm mb-2"></p>
+            <p id="modalItemPrice" class="text-lg font-semibold text-orange-600 mb-4"></p>
+            <div class="flex flex-col sm:flex-row justify-center gap-3">
+                <a id="modalItemDownload" href="#" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full text-center">Завантажити</a>
+                <button id="modalItemPurchase" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full">Придбати</button>
+            </div>
+        </div>
+    </div>
 
-        // Initial default gallery items (you can modify or remove these as needed)
-        const defaultGalleryItems = [
-            {
-                id: 'photo-1',
-                type: 'photo',
-                src: 'https://placehold.co/600x400/333/eee?text=Photo+For+Sale+1',
-                description: 'Яскраво-червона квітка в саду, знята зблизька, демонструючи деталі її пелюсток.',
-                hashtags: '#макро #квітка #природа',
-                price: 5.00
-            },
-            {
-                id: 'photo-2',
-                type: 'photo',
-                src: 'https://placehold.co/600x400/333/eee?text=Photo+For+Sale+2',
-                description: 'Величний гірський пейзаж на заході сонця з кольоровим небом.',
-                hashtags: '#пейзаж #гори #західсонця',
-                price: 7.00
-            },
-            {
-                id: 'photo-3',
-                type: 'photo',
-                src: 'https://placehold.co/600x400/333/eee?text=Photo+For+Sale+3',
-                description: 'Жвава міська вулиця вночі, освітлена неоновими вогнями та автомобільним трафіком.',
-                hashtags: '#місто #ніч #ліхтарі',
-                price: 6.50
-            },
-            {
-                id: 'video-1',
-                type: 'video',
-                src: 'https://placehold.co/600x400/333/eee?text=Video+Placeholder+1', // Placeholder image for video
-                description: 'Заспокійливе відео з птахами в лісі, зняте рано вранці, що супроводжується природними звуками.',
-                hashtags: '#природа #птахи #ліс #звуки',
-                price: 8.50
-            },
-            {
-                id: 'video-2',
-                type: 'video',
-                src: 'https://placehold.co/600x400/333/eee?text=Video+Placeholder+2', // Placeholder image for video
-                description: 'Захоплюючий таймлапс вечірнього міста, що показує рух транспорту та освітлення.',
-                hashtags: '#місто #таймлапс #вечір #трафік',
-                price: 9.50
-            }
-        ];
-
-        /**
-         * Loads items from localStorage or uses default items if none are found.
-         */
-        function loadItemsFromLocalStorage() {
-            const storedItems = localStorage.getItem(UPLOADED_ITEMS_KEY);
-            const storedPurchases = localStorage.getItem(PURCHASED_ITEMS_KEY);
-
-            if (storedItems) {
-                galleryItems = JSON.parse(storedItems);
-            } else {
-                galleryItems = defaultGalleryItems;
-                // Optionally save defaults to local storage on first load
-                localStorage.setItem(UPLOADED_ITEMS_KEY, JSON.stringify(galleryItems));
-            }
-
-            if (storedPurchases) {
-                purchasedItems = JSON.parse(storedPurchases);
-            }
-        }
-
-        /**
-         * Saves current gallery items to localStorage.
-         */
-        function saveItemsToLocalStorage() {
-            localStorage.setItem(UPLOADED_ITEMS_KEY, JSON.stringify(galleryItems));
-        }
-
-        /**
-         * Saves current purchased items to localStorage.
-         */
-        function savePurchasedItemsToLocalStorage() {
-            localStorage.setItem(PURCHASED_ITEMS_KEY, JSON.stringify(purchasedItems));
-        }
-
-        /**
-         * Displays a custom modal with a given message.
-         * @param {string} message - The message to display in the modal.
-         */
-        function showModal(message) {
-            const appModal = document.getElementById('app-modal');
-            const modalMessage = document.getElementById('modal-message');
-            if (modalMessage && appModal) {
-                modalMessage.textContent = message;
-                appModal.classList.remove('hidden'); // Show the modal
-            }
-        }
-
-        /**
-         * Closes the custom modal and clears its message.
-         */
-        function closeModal() {
-            const appModal = document.getElementById('app-modal');
-            if (appModal) {
-                appModal.classList.add('hidden'); // Hide the modal
-                document.getElementById('modal-message').textContent = ''; // Clear message
-            }
-        }
-
-        let currentPaymentItem = null; // Stores the item being purchased
-
-        /**
-         * Shows the payment confirmation modal.
-         * @param {object} item - The item object to be purchased.
-         */
-        function showPaymentModal(item) {
-            currentPaymentItem = item;
-            const paymentModal = document.getElementById('payment-modal');
-            const paymentItemDetails = document.getElementById('payment-item-details');
-            const paymentEmailInput = document.getElementById('payment-email');
-
-            if (paymentModal && paymentItemDetails && paymentEmailInput) {
-                paymentItemDetails.textContent = `Ви купуєте: "${item.description}" за $${item.price.toFixed(2)}`;
-                paymentEmailInput.value = ''; // Clear previous email
-                paymentModal.classList.remove('hidden');
-            }
-        }
-
-        /**
-         * Closes the payment modal.
-         */
-        function closePaymentModal() {
-            const paymentModal = document.getElementById('payment-modal');
-            if (paymentModal) {
-                paymentModal.classList.add('hidden');
-                currentPaymentItem = null;
-            }
-        }
-
-        /**
-         * Processes the simulated payment.
-         */
-        function processPayment() {
-            const email = document.getElementById('payment-email').value.trim();
-            if (!email || !email.includes('@')) {
-                showModal("Будь ласка, введіть дійсний email для оплати.");
-                return;
-            }
-
-            if (currentPaymentItem) {
-                // Simulate WayForPay payment logic
-                showModal(`Імітація оплати за "${currentPaymentItem.description}" на суму $${currentPaymentItem.price.toFixed(2)} через WayForPay (для ${email}). Дякуємо!`);
-                
-                // Mark item as purchased
-                purchasedItems[currentPaymentItem.id] = true;
-                savePurchasedItemsToLocalStorage();
-                
-                // Update button on the main gallery after simulated purchase
-                const buyButton = document.querySelector(`button[data-item="${currentPaymentItem.id}"]`);
-                if (buyButton) {
-                    buyButton.textContent = `Завантажити ${currentPaymentItem.type === 'photo' ? 'фото' : 'відео'}`;
-                    buyButton.classList.remove('bg-black', 'hover:bg-white', 'border-white');
-                    buyButton.classList.add('bg-green-600', 'hover:bg-green-700', 'text-white', 'border-green-600');
-                }
-                
-                closePaymentModal();
-            }
-        }
-
-        /**
-         * Handles the donation submission (simulated for this static version).
-         * @param {number} amount - The amount of the donation.
-         */
-        function handleDonate(amount) {
-            const donorNameInput = document.getElementById('donor-name');
-            const donorName = donorNameInput ? donorNameInput.value.trim() : 'Анонім';
-            showModal(`Дякую, ${donorName || 'аноніме'}, за вашу підтримку! Ваш внесок $${amount.toFixed(2)} дуже важливий для процвітання цього сайту та моєї роботи.`);
-            
-            // Clear input fields after simulated successful donation
-            const customDonationAmountInput = document.getElementById('custom-donation-amount');
-            if (customDonationAmountInput) customDonationAmountInput.value = '';
-            if (donorNameInput) donorNameInput.value = '';
-
-            // In a real app, this would send data to a backend/Firestore
-            // For now, we update a simple simulated list
-            updateTopDonatorsList(donorName, amount);
-        }
-
-        // Simple in-memory storage for top donators for this static HTML version
-        const simulatedDonators = [];
-
-        /**
-         * Updates the "Top 10 Donators" list in the UI.
-         * @param {string} name - The name of the donator.
-         * @param {number} amount - The amount donated.
-         */
-        function updateTopDonatorsList(name, amount) {
-            // Only add if name or amount is provided (i.e., it's an actual donation)
-            if (name || amount > 0) {
-                simulatedDonators.push({ name: name, amount: amount, timestamp: Date.now() });
-            }
-            
-            // Sort by amount descending, then by timestamp descending for ties
-            simulatedDonators.sort((a, b) => {
-                if (b.amount !== a.amount) {
-                    return b.amount - a.amount;
-                }
-                return b.timestamp - a.time;
-            });
-
-            const donatorsList = document.getElementById('top-donators-list');
-            if (donatorsList) {
-                donatorsList.innerHTML = ''; // Clear existing list
-                if (simulatedDonators.length === 0) {
-                    donatorsList.innerHTML = '<li class="text-gray-400">Наразі немає донатерів. Будьте першим!</li>';
-                    return;
-                }
-                // Display top 10
-                simulatedDonators.slice(0, 10).forEach((donator, index) => {
-                    const li = document.createElement('li');
-                    li.className = 'flex justify-between items-center py-2 border-b border-gray-700 last:border-b-0';
-                    li.innerHTML = `
-                        <span class="font-semibold text-lg text-yo-red">${index + 1}.</span>
-                        <span class="flex-grow ml-4">${donator.name || 'Анонім'}</span>
-                        <span class="font-bold text-lg text-yo-green">$${donator.amount.toFixed(2)}</span>
-                    `;
-                    donatorsList.appendChild(li);
-                });
-            }
-        }
-
-        /**
-         * Handles submission of a custom donation amount.
-         */
-        function handleCustomDonate() {
-            const customAmountInput = document.getElementById('custom-donation-amount');
-            let amount = parseFloat(customAmountInput.value); // Parse the input value as a float
-
-            if (isNaN(amount) || amount < 1) {
-                showModal("Будь ласка, введіть коректну суму донату (від $1).");
-                return;
-            }
-            if (amount > 10000000) { // Arbitrary high limit to prevent absurd inputs
-                showModal("Максимальна сума для ручного вводу - $10,000+. Якщо ви хочете донатити більше, будь ласка, зверніться до мене напряму.");
-                return;
-            }
-            // Ensure amount is formatted to 2 decimal places for consistency
-            amount = parseFloat(amount.toFixed(2));
-            handleDonate(amount); // Call the main donation handler
-        }
-
-        /**
-         * Simulates a download action for a purchased item.
-         * @param {string} itemUrl - The URL of the item to download (simulated).
-         * @param {string} type - The type of item (e.g., 'photo', 'video').
-         */
-        function downloadItem(itemUrl, type) {
-            showModal(`Завантаження ${type === 'photo' ? 'фото' : 'відео'}...`);
-            // In a real application, this would trigger an actual file download, e.g.:
-            // window.location.href = itemUrl;
-        }
-
-        /**
-         * Manages page visibility and active navigation links.
-         * Also controls sidebar state and main content dimming.
-         * @param {string} pageId - The ID of the page to show (e.g., 'home', 'buy-photo').
-         */
-        function showPage(pageId) {
-            const pages = document.querySelectorAll('.page');
-            const navLinks = document.querySelectorAll('#sidebar a');
-            const sidebar = document.getElementById('sidebar');
-            const burgerIcon = document.getElementById('burger-icon');
-            const contentOverlay = document.getElementById('content-overlay');
-            const mainContent = document.getElementById('content-area');
-
-            // Hide all pages and remove active state from navigation links
-            pages.forEach(page => {
-                page.classList.add('hidden');
-                page.classList.remove('active');
-            });
-            navLinks.forEach(link => {
-                link.classList.remove('text-yo-red', 'active-link');
-                link.classList.add('text-yo-white');
-            });
-
-            // Show the target page and mark its corresponding navigation link as active
-            const targetPage = document.getElementById(`${pageId}-page`);
-            if (targetPage) {
-                targetPage.classList.remove('hidden');
-                targetPage.classList.add('active');
-                currentPage = pageId; // Update global current page variable
-            } else {
-                console.error(`Сторінку з ID '${pageId}-page' не знайдено.`);
-                return; // Exit if page not found
-            }
-
-            const activeNavLink = document.getElementById(`nav-${pageId}`);
-            if (activeNavLink) {
-                activeNavLink.classList.add('text-yo-red', 'active-link');
-            }
-
-            // Close sidebar and remove content dimming when a page is selected
-            sidebar.classList.remove('open');
-            burgerIcon.classList.remove('open');
-            contentOverlay.classList.remove('active');
-            mainContent.classList.remove('dim-content');
-
-            // Set dynamic background gradient based on the current page
-            let newBgGradient = 'from-indigo-900 to-purple-900'; // Default for home
-            if (pageId === 'buy-photo') {
-                newBgGradient = 'from-pink-700 to-purple-800';
-            } else if (pageId === 'buy-video') {
-                newBgGradient = 'from-green-700 to-blue-800';
-            } else if (pageId === 'order-photoshoot') {
-                newBgGradient = 'from-red-700 to-rose-800';
-            } else if (pageId === 'support') {
-                newBgGradient = 'from-fuchsia-700 to-purple-800';
-            } else if (pageId === 'donate') {
-                newBgGradient = 'from-red-800 to-black';
-            } else if (pageId === 'admin') {
-                newBgGradient = 'from-gray-700 to-gray-900';
-            }
-
-            // Update body background classes
-            document.body.className = document.body.className.split(' ').filter(c => !c.startsWith('bg-gradient-to-') && !c.startsWith('from-') && !c.startsWith('to-')).join(' ');
-            document.body.classList.add('font-inter', 'text-white', 'min-h-screen', 'transition-all', 'duration-500', 'bg-gradient-to-br', ...newBgGradient.split(' '), 'overflow-x-hidden');
-
-            // Re-render gallery items if navigating to gallery pages
-            if (pageId === 'home' || pageId === 'buy-photo' || pageId === 'buy-video') {
-                displayGalleryItems();
-            }
-            // Update admin uploaded content list
-            if (pageId === 'admin') {
-                displayUploadedContentList();
-            }
-        }
-
-        /**
-         * Displays gallery items on the Home, Buy Photo, and Buy Video pages.
-         */
-        function displayGalleryItems() {
-            const homeGallery = document.getElementById('home-gallery-content');
-            const buyPhotoGallery = document.getElementById('buy-photo-gallery');
-            const buyVideoGallery = document.getElementById('buy-video-gallery');
-
-            // Clear existing content
-            if (homeGallery) homeGallery.innerHTML = '';
-            if (buyPhotoGallery) buyPhotoGallery.innerHTML = '';
-            if (buyVideoGallery) buyVideoGallery.innerHTML = '';
-
-            const photoItems = galleryItems.filter(item => item.type === 'photo');
-            const videoItems = galleryItems.filter(item => item.type === 'video');
-
-            // Display 5 preview photos on the Home page
-            if (homeGallery) {
-                photoItems.slice(0, 5).forEach(item => {
-                    const itemHtml = createGalleryItemHTML(item, false); // No buy button on home page
-                    homeGallery.insertAdjacentHTML('beforeend', itemHtml);
-                });
-            }
-
-            // Display all photo items on the Buy Photo page
-            if (buyPhotoGallery) {
-                photoItems.forEach(item => {
-                    const itemHtml = createGalleryItemHTML(item, true); // Show buy button
-                    buyPhotoGallery.insertAdjacentHTML('beforeend', itemHtml);
-                });
-            }
-
-            // Display all video items on the Buy Video page
-            if (buyVideoGallery) {
-                videoItems.forEach(item => {
-                    const itemHtml = createGalleryItemHTML(item, true); // Show buy button
-                    buyVideoGallery.insertAdjacentHTML('beforeend', itemHtml);
-                });
-            }
-
-            // Re-attach event listeners for buy/download buttons
-            attachBuyDownloadListeners();
-            updateCurrencyDisplays(); // Update currency for all newly displayed items
-        }
-
-        /**
-         * Creates the HTML structure for a single gallery item.
-         * @param {object} item - The item object (photo or video).
-         * @param {boolean} showBuyButton - Whether to display the buy/download button.
-         * @returns {string} The HTML string for the gallery item.
-         */
-        function createGalleryItemHTML(item, showBuyButton) {
-            const isPurchased = purchasedItems[item.id];
-            const buttonText = isPurchased ? `Завантажити ${item.type === 'photo' ? 'фото' : 'відео'}` : `Купити ${item.type === 'photo' ? 'фото' : 'відео'}`;
-            const buttonClasses = isPurchased ? 'bg-green-600 hover:bg-green-700 text-white border-green-600' : 'bg-black text-white border-white hover:bg-white hover:text-black';
-
-            let mediaHtml;
-            if (item.type === 'photo') {
-                mediaHtml = `<img src="${item.src}" alt="${item.description}" class="w-full h-auto image-hover-scale cursor-pointer rounded-t-md">`;
-            } else { // type === 'video'
-                mediaHtml = `
-                    <div class="relative pb-[56.25%] h-0 overflow-hidden group">
-                        <img src="${item.src}" alt="${item.description}" class="absolute top-0 left-0 w-full h-full object-cover cursor-pointer rounded-t-md image-hover-scale" />
-                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <i class="fas fa-play-circle text-white text-5xl opacity-80 group-hover:opacity-100 transition-opacity"></i>
-                        </div>
-                    </div>
-                `;
-            }
-
-            return `
-                <div class="bg-gray-900 rounded-lg overflow-hidden shadow-xl border border-gray-700">
-                    ${mediaHtml}
-                    <div class="p-4">
-                        <p class="text-sm text-gray-400 mb-2">${item.hashtags}</p>
-                        <p class="text-gray-300 mb-3">${item.description}</p>
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-2xl font-bold text-yo-green" data-currency-usd="${item.price.toFixed(2)}">$${item.price.toFixed(2)}</span>
-                        </div>
-                        ${showBuyButton ? `<button class="buy-download-button px-6 py-3 rounded-none border-2 transition-colors duration-300 w-full ${buttonClasses}" data-item="${item.id}" data-type="${item.type}" data-url="${item.src}">
-                            ${buttonText}
-                        </button>` : ''}
-                    </div>
+    <!-- Purchase Modal -->
+    <div id="purchaseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('purchaseModal')">&times;</span>
+            <h3 class="text-xl font-bold mb-3 text-gray-800">Підтвердження покупки</h3>
+            <p class="mb-3">Ви збираєтеся придбати: <span id="purchaseItemName" class="font-semibold"></span> за <span id="purchaseItemPrice" class="font-semibold"></span>.</p>
+            <form id="purchaseForm" class="space-y-3">
+                <div>
+                    <label for="purchaseEmail" class="block text-gray-700 text-sm font-bold mb-1">Ваш Email:</label>
+                    <input type="email" id="purchaseEmail" name="purchaseEmail" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
                 </div>
-            `;
+                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full">Підтвердити покупку</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Photoshoot Booking Modal -->
+    <div id="photoshootBookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('photoshootBookingModal')">&times;</span>
+            <h3 class="text-xl font-bold mb-3 text-gray-800">Забронювати фотосесію</h3>
+            <form id="photoshootBookingForm" class="space-y-3">
+                <div>
+                    <label for="bookingDate" class="block text-gray-700 text-sm font-bold mb-1">Бажана дата:</label>
+                    <input type="date" id="bookingDate" name="bookingDate" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div>
+                    <label for="bookingTime" class="block text-gray-700 text-sm font-bold mb-1">Бажаний час:</label>
+                    <input type="time" id="bookingTime" name="bookingTime" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div>
+                    <label for="contactInfo" class="block text-gray-700 text-sm font-bold mb-1">Ваш Instagram або Email:</label>
+                    <input type="text" id="contactInfo" name="contactInfo" placeholder="@ваш_інстаграм або ваш@email.com" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full">Надіслати запит на бронювання</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // URL вашого розгорнутого Google Apps Script
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzHodN1t1z9c_4tDzMJvkUZs5jdbgwCvN1LJDzX74kK0rlVHLrwmJvdLhAkSFbjI3isTA/exec';
+        console.log('Використовуваний URL Apps Script:', APPS_SCRIPT_URL);
+
+        // Елементи DOM
+        const galleryItemsContainer = document.getElementById('gallery-items-container');
+        const itemDetailModal = document.getElementById('itemDetailModal');
+        const purchaseModal = document.getElementById('purchaseModal');
+        const photoshootBookingModal = document.getElementById('photoshootBookingModal');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+        let currentSelectedItem = null; // Для зберігання даних про поточний вибраний елемент галереї
+
+        // --- Функції для керування модальними вікнами та повідомленнями ---
+
+        /**
+         * Показує повідомлення користувачу.
+         * @param {string} message - Текст повідомлення.
+         * @param {string} type - Тип повідомлення ('info', 'success', 'error').
+         */
+        function showMessageBox(message, type = 'info') {
+            messageText.textContent = message;
+            messageBox.className = 'message-box'; // Reset classes
+            if (type === 'success') {
+                messageBox.classList.add('success');
+            } else if (type === 'error') {
+                messageBox.classList.add('error');
+            }
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000); // Приховати через 5 секунд
         }
 
         /**
-         * Attaches event listeners to all buy/download buttons.
+         * Приховує вікно повідомлення.
          */
-        function attachBuyDownloadListeners() {
-            document.querySelectorAll('.buy-download-button').forEach(button => {
-                button.onclick = null; // Remove existing click handler to prevent duplicates
-                button.addEventListener('click', (e) => {
-                    const itemId = e.target.dataset.item;
-                    const itemType = e.target.dataset.type;
-                    const itemUrl = e.target.dataset.url;
-                    const item = galleryItems.find(i => i.id === itemId);
-
-                    if (!item) {
-                        showModal('Помилка: Товар не знайдено.');
-                        return;
-                    }
-
-                    if (e.target.textContent.includes('Купити')) {
-                        showPaymentModal(item);
-                    } else if (e.target.textContent.includes('Завантажити')) {
-                        downloadItem(itemUrl, itemType);
-                    }
-                });
-            });
+        function hideMessageBox() {
+            messageBox.style.display = 'none';
         }
 
         /**
-         * Updates the list of uploaded content on the admin page.
+         * Показує оверлей завантаження.
          */
-        function displayUploadedContentList() {
-            const uploadedContentList = document.getElementById('uploaded-content-list');
-            if (!uploadedContentList) return;
+        function showLoading() {
+            loadingOverlay.style.display = 'flex';
+        }
 
-            uploadedContentList.innerHTML = ''; // Clear existing list
+        /**
+         * Приховує оверлей завантаження.
+         */
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
 
-            if (galleryItems.length === 0) {
-                uploadedContentList.innerHTML = '<p class="text-gray-400 text-center">Тут буде відображено завантажений вами контент.</p>';
-                return;
+        /**
+         * Відкриває вказане модальне вікно.
+         * @param {string} modalId - ID модального вікна для відкриття.
+         */
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        /**
+         * Закриває вказане модальне вікно.
+         * @param {string} modalId - ID модального вікна для закриття.
+         */
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Закриття модальних вікон при кліку поза ними
+        window.onclick = function(event) {
+            if (event.target == itemDetailModal) {
+                closeModal('itemDetailModal');
+            } else if (event.target == purchaseModal) {
+                closeModal('purchaseModal');
+            } else if (event.target == photoshootBookingModal) {
+                closeModal('photoshootBookingModal');
+            }
+        };
+
+        // --- Функції для взаємодії з Google Apps Script ---
+
+        /**
+         * Виконує HTTP-запит до Google Apps Script.
+         * @param {string} method - Метод HTTP (GET або POST).
+         * @param {object} params - Параметри для GET-запиту або тіло для POST-запиту.
+         * @returns {Promise<object>} - Проміс, що повертає JSON-відповідь.
+         */
+        async function callAppsScript(method, params) {
+            showLoading();
+            let url = new URL(APPS_SCRIPT_URL);
+            let options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (method === 'GET') {
+                for (const key in params) {
+                    url.searchParams.append(key, params[key]);
+                }
+            } else if (method === 'POST') {
+                options.body = JSON.stringify(params);
             }
 
-            galleryItems.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'bg-gray-700 p-3 rounded-md flex items-center justify-between text-sm text-gray-200';
-                itemDiv.innerHTML = `
-                    <span class="truncate mr-2">${item.type === 'photo' ? 'Фото' : 'Відео'}: ${item.description.substring(0, 50)}... (${item.price.toFixed(2)}$)</span>
-                    <button data-item-id="${item.id}" class="delete-uploaded-item bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs">Видалити</button>
-                `;
-                uploadedContentList.appendChild(itemDiv);
-            });
-
-            // Attach delete listeners
-            document.querySelectorAll('.delete-uploaded-item').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const itemIdToDelete = e.target.dataset.itemId;
-                    // Remove from galleryItems array
-                    galleryItems = galleryItems.filter(item => item.id !== itemIdToDelete);
-                    // Remove from purchasedItems if it was purchased
-                    delete purchasedItems[itemIdToDelete];
-                    
-                    saveItemsToLocalStorage();
-                    savePurchasedItemsToLocalStorage();
-                    
-                    showModal('Елемент видалено (з поточної сесії).');
-                    displayUploadedContentList(); // Re-render the list
-                    displayGalleryItems(); // Re-render galleries
-                });
-            });
-        }
-
-
-        /**
-         * Calls Gemini API to generate description and hashtags.
-         * @param {string} fileType - 'photo' or 'video'.
-         * @param {string} initialDescription - Any initial text in the description field.
-         * @returns {Promise<object>} Object with generated description and hashtags.
-         */
-        async function generateDescriptionAndHashtags(fileType, initialDescription) {
-            const prompt = `Сгенеруй короткий, привабливий опис та 3-5 релевантних хештегів для ${fileType} контенту. Опис має бути українською мовою, 1-2 речення. Хештеги через пробіл, починаються з #. ${initialDescription ? 'Врахуй, що я вже почав писати: "' + initialDescription + '"' : ''}\n\nПриклад формату: "Опис: Мальовничий краєвид з висоти пташиного польоту. Хештеги: #природа #пейзаж #краса #фото"`;
-            
-            let chatHistory = [];
-            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-
-            const payload = { contents: chatHistory };
-            const apiKey = ""; // Canvas will provide this dynamically
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            console.log('Надсилання запиту до Apps Script. URL:', url.toString(), 'Метод:', method, 'Параметри/Тіло:', params);
 
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    // Parse the generated text
-                    const descriptionMatch = text.match(/Опис: (.*?)Хештеги:/);
-                    const hashtagsMatch = text.match(/Хештеги: (.*)/);
-
-                    let generatedDescription = descriptionMatch ? descriptionMatch[1].trim() : '';
-                    let generatedHashtags = hashtagsMatch ? hashtagsMatch[1].trim() : '';
-
-                    return { description: generatedDescription, hashtags: generatedHashtags };
-
-                } else {
-                    console.error("Gemini API returned an unexpected response structure:", result);
-                    return { description: '', hashtags: '' };
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Помилка відповіді сервера:', response.status, response.statusText, 'Деталі:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}. Деталі: ${errorText.substring(0, 100)}...`);
                 }
+                const data = await response.json();
+                hideLoading();
+                return data;
             } catch (error) {
-                console.error("Error calling Gemini API:", error);
-                showModal("Помилка генерації опису ШІ. Спробуйте пізніше або введіть вручну.");
-                return { description: '', hashtags: '' };
+                hideLoading();
+                console.error('Помилка виклику Apps Script:', error);
+                showMessageBox(`Помилка: Не вдалося підключитися до Apps Script. Перевірте: 1. Чи правильний URL Apps Script. 2. Чи розгорнуто Apps Script як "Веб-додаток" з дозволами "Будь-хто". 3. Чи немає проблем з мережею. Деталі: ${error.message}`, 'error');
+                return { status: 'error', message: error.message };
             }
         }
 
         /**
-         * Simulates currency conversion for demonstration purposes.
-         * Defined globally to be accessible from `displayGalleryItems`.
+         * Завантажує елементи галереї з Google Таблиці.
          */
-        function updateCurrencyDisplays() {
-            const exchangeRate = 36.9; // Example UAH to USD rate (can be dynamic in a real app)
-            document.querySelectorAll('[data-currency-usd]').forEach(element => {
-                const usdPrice = parseFloat(element.dataset.currencyUsd);
-                if (!isNaN(usdPrice)) {
-                    const uahPrice = (usdPrice * exchangeRate).toFixed(0); // Convert to UAH and round
-                    // Update innerHTML to include both USD and UAH
-                    element.innerHTML = `<span class="text-2xl font-bold text-yo-green">$${usdPrice.toFixed(2)}</span><br><span class="text-sm text-gray-400">~${uahPrice} UAH</span>`;
+        async function loadGalleryItems() {
+            const response = await callAppsScript('GET', { action: 'getGalleryItems' });
+            if (response.status === 'success') {
+                renderGalleryItems(response.data);
+            } else {
+                showMessageBox(`Не вдалося завантажити елементи галереї: ${response.message}`, 'error');
+            }
+        }
+
+        /**
+         * Рендерить елементи галереї на сторінці.
+         * @param {Array<object>} items - Масив об'єктів елементів галереї.
+         */
+        function renderGalleryItems(items) {
+            galleryItemsContainer.innerHTML = ''; // Очистити контейнер
+            if (items.length === 0) {
+                galleryItemsContainer.innerHTML = '<p class="col-span-full text-center text-gray-600">Наразі в галереї немає елементів.</p>';
+                return;
+            }
+            items.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'bg-gray-50 rounded-lg shadow-md overflow-hidden cursor-pointer card';
+                itemCard.onclick = () => showItemDetail(item);
+
+                let mediaHtml = '';
+                if (item.Type === 'photo') {
+                    mediaHtml = `<img src="${item.Src || 'https://placehold.co/400x300/e2e8f0/475569?text=No+Image'}" alt="${item.Description}" class="w-full h-48 object-cover">`;
+                } else if (item.Type === 'video') {
+                    mediaHtml = `<video src="${item.Src || ''}" controls class="w-full h-48 object-cover"></video>`;
                 }
+
+                itemCard.innerHTML = `
+                    ${mediaHtml}
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">${item.Description || 'Без опису'}</h3>
+                        <p class="text-gray-600 text-sm">${item.Hashtags || ''}</p>
+                        <p class="text-orange-600 font-bold mt-2">${item.Price ? item.Price + ' UAH' : 'Безкоштовно'}</p>
+                    </div>
+                `;
+                galleryItemsContainer.appendChild(itemCard);
             });
         }
 
+        /**
+         * Показує деталі вибраного елемента галереї в модальному вікні.
+         * @param {object} item - Об'єкт елемента галереї.
+         */
+        function showItemDetail(item) {
+            currentSelectedItem = item; // Зберігаємо для використання в модальному вікні покупки
 
-        // Event listener for when the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Load items from local storage on page load
-            loadItemsFromLocalStorage();
-            // Initialize the homepage display
-            showPage(currentPage);
+            document.getElementById('modalItemTitle').textContent = item.Description || 'Деталі елемента';
+            document.getElementById('modalItemDescription').textContent = item.Description || 'Опис відсутній.';
+            document.getElementById('modalItemHashtags').textContent = item.Hashtags || '';
+            document.getElementById('modalItemPrice').textContent = item.Price ? `${item.Price} UAH` : 'Безкоштовно';
 
-            // Get references to DOM elements for sidebar functionality
-            const burgerIcon = document.getElementById('burger-icon');
-            const sidebar = document.getElementById('sidebar');
-            const contentOverlay = document.getElementById('content-overlay');
-            const mainContent = document.getElementById('content-area');
+            const modalItemImage = document.getElementById('modalItemImage');
+            const modalItemVideo = document.getElementById('modalItemVideo');
+            const modalItemDownload = document.getElementById('modalItemDownload');
+            const modalItemPurchase = document.getElementById('modalItemPurchase');
 
-            // Toggle sidebar, burger icon animation, overlay, and main content dimming
-            burgerIcon.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                burgerIcon.classList.toggle('open');
-                contentOverlay.classList.toggle('active');
-                mainContent.classList.toggle('dim-content');
+            // Скидання видимості медіа
+            modalItemImage.style.display = 'none';
+            modalItemVideo.style.display = 'none';
+            modalItemVideo.pause(); // Зупинити відтворення відео, якщо воно було відкрите раніше
+
+            if (item.Type === 'photo') {
+                modalItemImage.src = item.Src || 'https://placehold.co/600x400/e2e8f0/475569?text=No+Image';
+                modalItemImage.style.display = 'block';
+            } else if (item.Type === 'video') {
+                modalItemVideo.src = item.Src || '';
+                modalItemVideo.style.display = 'block';
+            }
+
+            // Кнопка "Завантажити"
+            if (item.DownloadUrl) {
+                modalItemDownload.href = item.DownloadUrl;
+                modalItemDownload.style.display = 'block';
+            } else {
+                modalItemDownload.style.display = 'none';
+            }
+
+            // Кнопка "Придбати"
+            if (item.Price && item.Price > 0) {
+                modalItemPurchase.style.display = 'block';
+                modalItemPurchase.onclick = () => {
+                    document.getElementById('purchaseItemName').textContent = item.Description || 'Цей елемент';
+                    document.getElementById('purchaseItemPrice').textContent = item.Price ? `${item.Price} UAH` : 'Безкоштовно';
+                    openModal('purchaseModal');
+                };
+            } else {
+                modalItemPurchase.style.display = 'none';
+            }
+
+            openModal('itemDetailModal');
+        }
+
+        // --- Обробники форм ---
+
+        /**
+         * Обробляє відправку форми донату.
+         */
+        document.getElementById('donateForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const donorName = document.getElementById('donorName').value;
+            const donationAmount = document.getElementById('donationAmount').value;
+
+            if (!donationAmount || parseFloat(donationAmount) <= 0) {
+                showMessageBox('Будь ласка, введіть дійсну суму донату.', 'error');
+                return;
+            }
+
+            const response = await callAppsScript('POST', {
+                action: 'recordDonation',
+                amount: parseFloat(donationAmount),
+                donorName: donorName
             });
 
-            // Close sidebar when clicking on the overlay
-            contentOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                burgerIcon.classList.remove('open');
-                contentOverlay.classList.remove('active');
-                mainContent.classList.remove('dim-content');
-            });
-
-            // Add click listeners to all navigation links in the sidebar
-            const navLinks = document.querySelectorAll('#sidebar a');
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault(); // Prevent default link behavior (page reload)
-                    const pageId = e.target.dataset.page; // Get the target page ID from data-page attribute
-                    showPage(pageId); // Navigate to the selected page
-                });
-            });
-
-            // Add click listeners for buttons on the Home page to navigate to other sections
-            const btnShowBuyPhoto = document.getElementById('btn-show-buy-photo');
-            if (btnShowBuyPhoto) {
-                btnShowBuyPhoto.addEventListener('click', () => showPage('buy-photo'));
+            if (response.status === 'success') {
+                showMessageBox('Дякуємо за ваш донат!', 'success');
+                this.reset();
+            } else {
+                showMessageBox(`Помилка при записі донату: ${response.message}`, 'error');
             }
-
-            const btnShowDonateHome = document.getElementById('btn-show-donate-home');
-            if (btnShowDonateHome) {
-                btnShowDonateHome.addEventListener('click', () => showPage('donate'));
-            }
-
-            // Add click listeners for fixed-amount donation buttons
-            const fixedDonateButtons = document.querySelectorAll('.donate-button-fixed');
-            fixedDonateButtons.forEach(button => {
-                const amount = parseFloat(button.dataset.amount);
-                if (!isNaN(amount)) {
-                    button.addEventListener('click', () => handleDonate(amount));
-                }
-            });
-
-            // Add click listener for the custom donation button
-            const btnCustomDonate = document.getElementById('btn-custom-donate');
-            if (btnCustomDonate) {
-                btnCustomDonate.addEventListener('click', handleCustomDonate);
-            }
-
-            // Add click listener for the "Order Photoshoot" button
-            const btnOrderPhotoshoot = document.getElementById('btn-order-photoshoot');
-            if (btnOrderPhotoshoot) {
-                btnOrderPhotoshoot.addEventListener('click', () => showModal('Ваш запит на фотосесію надіслано! Я зв\'яжуся з вами незабаром для підтвердження.'));
-            }
-
-            // Add click listener for the modal close button
-            const modalCloseButton = document.getElementById('modal-close-button');
-            if (modalCloseButton) {
-                modalCloseButton.addEventListener('click', closeModal);
-            }
-
-            // Add click listener for payment modal buttons
-            const processPaymentBtn = document.getElementById('process-payment-btn');
-            if (processPaymentBtn) {
-                processPaymentBtn.addEventListener('click', processPayment);
-            }
-            const cancelPaymentBtn = document.getElementById('cancel-payment-btn');
-            if (cancelPaymentBtn) {
-                cancelPaymentBtn.addEventListener('click', closePaymentModal);
-            }
-
-            // --- New button interaction logic ---
-            const dippedButton = document.getElementById('dippedButton');
-            if (dippedButton) {
-                dippedButton.addEventListener('click', () => {
-                    console.log('Кнопка "Натисни мене!" була натиснута!');
-                    showModal('Ви натиснули на кнопку! Тепер вона має ефект "занурення".');
-                });
-            }
-            // --- End new button interaction logic ---
-
-
-            // Scroll-to-Top button functionality
-            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
-            window.addEventListener('scroll', () => {
-                // Show/hide button based on scroll position
-                if (window.scrollY > 200) {
-                    scrollToTopBtn.classList.remove('hidden');
-                } else {
-                    scrollToTopBtn.classList.add('hidden');
-                }
-            });
-
-            // Scroll to top on button click
-            scrollToTopBtn.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth' // Smooth scrolling animation
-                });
-            });
-
-
-            // Support form submission logic
-            const supportForm = document.getElementById('support-form');
-            if (supportForm) {
-                supportForm.addEventListener('submit', (e) => {
-                    e.preventDefault(); // Prevent default form submission
-                    const name = document.getElementById('support-name').value;
-                    const problem = document.getElementById('support-problem').value;
-                    if (name && problem) {
-                        showModal(`Дякую, ${name}! Ваш запит прийнято. Я зв'яжуся з вами щодо проблеми: "${problem.substring(0, 50)}..."`);
-                        supportForm.reset(); // Clear form fields
-                    } else {
-                        showModal('Будь ласка, заповніть усі поля форми підтримки.');
-                    }
-                });
-            }
-
-            // Calendar functionality for "Order Photoshoot" page
-            const calendarDays = document.querySelectorAll('.calendar-day');
-            const selectedDateDisplay = document.getElementById('selected-date');
-            // Assuming one day is selected by default in HTML for initial display
-            let selectedDayElement = document.querySelector('.calendar-day.selected-day');
-
-            calendarDays.forEach(day => {
-                day.addEventListener('click', () => {
-                    // Remove selection from previously selected day
-                    if (selectedDayElement) {
-                        selectedDayElement.classList.remove('selected-day', 'border-2', 'border-yo-red');
-                    }
-                    // Add selection to the newly clicked day
-                    day.classList.add('selected-day', 'border-2', 'border-yo-red');
-                    selectedDayElement = day; // Update reference to selected day
-
-                    // Update the displayed selected date text
-                    const dateValue = day.dataset.date;
-                    const dateParts = dateValue.split('-');
-                    const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); // Month is 0-indexed
-                    const options = { day: 'numeric', month: 'long', year: 'numeric' };
-                    selectedDateDisplay.textContent = date.toLocaleDateString('uk-UA', options);
-                });
-            });
-
-            // Admin Panel Upload Form Logic
-            const uploadForm = document.getElementById('upload-form');
-            if (uploadForm) {
-                uploadForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const fileInput = document.getElementById('upload-file');
-                    const fileDescriptionInput = document.getElementById('file-description');
-                    const fileHashtagsInput = document.getElementById('file-hashtags');
-                    const filePriceInput = document.getElementById('file-price');
-
-                    const file = fileInput.files[0];
-                    const description = fileDescriptionInput.value.trim();
-                    const hashtags = fileHashtagsInput.value.trim();
-                    const price = parseFloat(filePriceInput.value);
-
-                    if (!file || !description || !hashtags || isNaN(price) || price <= 0) {
-                        showModal('Будь ласка, заповніть усі поля для завантаження контенту.');
-                        return;
-                    }
-
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        const newId = `item-${Date.now()}`; // Unique ID for the new item
-                        const fileType = file.type.startsWith('image/') ? 'photo' : 'video';
-                        const newItem = {
-                            id: newId,
-                            type: fileType,
-                            src: event.target.result, // Base64 URL for local display
-                            description: description,
-                            hashtags: hashtags,
-                            price: price
-                        };
-                        galleryItems.push(newItem);
-                        saveItemsToLocalStorage(); // Save to local storage
-                        showModal('Контент успішно завантажено (тільки для поточної сесії)!');
-                        
-                        // Clear the form
-                        uploadForm.reset();
-                        // Re-display galleries to show new content
-                        displayGalleryItems();
-                        displayUploadedContentList();
-                    };
-                    reader.readAsDataURL(file); // Read file as Base64 data URL
-                });
-            }
-
-            // AI Description Generation Button Logic
-            const generateDescriptionBtn = document.getElementById('generate-description-btn');
-            if (generateDescriptionBtn) {
-                generateDescriptionBtn.addEventListener('click', async () => {
-                    const fileInput = document.getElementById('upload-file');
-                    const fileDescriptionInput = document.getElementById('file-description');
-                    const fileHashtagsInput = document.getElementById('file-hashtags');
-
-                    const file = fileInput.files[0];
-                    if (!file) {
-                        showModal('Будь ласка, спочатку оберіть файл (фото або відео), щоб генерувати опис.');
-                        return;
-                    }
-
-                    const fileType = file.type.startsWith('image/') ? 'фото' : 'відео';
-                    const currentDescription = fileDescriptionInput.value.trim();
-
-                    showModal('Генерую опис та хештеги за допомогою ШІ...');
-                    const generatedContent = await generateDescriptionAndHashtags(fileType, currentDescription);
-                    closeModal(); // Close loading modal
-
-                    if (generatedContent.description || generatedContent.hashtags) {
-                        fileDescriptionInput.value = generatedContent.description;
-                        fileHashtagsInput.value = generatedContent.hashtags;
-                        showModal('Опис та хештеги успішно згенеровано ШІ! Будь ласка, перевірте та відредагуйте за потреби.');
-                    } else {
-                        showModal('Не вдалося згенерувати опис. Будь ласка, спробуйте ще раз або введіть вручну.');
-                    }
-                });
-            }
-
-            // Initial calls to populate content
-            displayGalleryItems();
-            displayUploadedContentList(); // Call this to show any previously "uploaded" (session-stored) items on admin page
-            updateTopDonatorsList('', 0); // Initialize an empty list or load from mock data
         });
+
+        /**
+         * Обробляє відправку форми покупки.
+         */
+        document.getElementById('purchaseForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const purchaseEmail = document.getElementById('purchaseEmail').value;
+
+            if (!purchaseEmail) {
+                showMessageBox('Будь ласка, введіть ваш Email.', 'error');
+                return;
+            }
+
+            if (!currentSelectedItem) {
+                showMessageBox('Помилка: не вибрано жодного елемента для покупки.', 'error');
+                return;
+            }
+
+            const response = await callAppsScript('POST', {
+                action: 'recordPurchase',
+                itemId: currentSelectedItem.DocId, // Використовуємо DocId з елемента галереї
+                userEmail: purchaseEmail
+            });
+
+            if (response.status === 'success') {
+                showMessageBox('Покупка успішно записана! З вами зв\'яжуться.', 'success');
+                closeModal('purchaseModal');
+                closeModal('itemDetailModal');
+                this.reset();
+            } else {
+                showMessageBox(`Помилка при записі покупки: ${response.message}`, 'error');
+            }
+        });
+
+        /**
+         * Обробляє відправку форми бронювання фотосесії.
+         */
+        document.getElementById('photoshootBookingForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const bookingDate = document.getElementById('bookingDate').value;
+            const bookingTime = document.getElementById('bookingTime').value;
+            const contactInfo = document.getElementById('contactInfo').value;
+
+            if (!bookingDate || !bookingTime || !contactInfo) {
+                showMessageBox('Будь ласка, заповніть всі поля для бронювання.', 'error');
+                return;
+            }
+
+            const response = await callAppsScript('POST', {
+                action: 'recordPhotoshootBooking',
+                bookingDate: bookingDate,
+                bookingTime: bookingTime,
+                contactInfo: contactInfo
+            });
+
+            if (response.status === 'success') {
+                showMessageBox('Ваш запит на фотосесію успішно надіслано! Я зв\'яжуся з вами найближчим часом.', 'success');
+                closeModal('photoshootBookingModal');
+                this.reset();
+            } else {
+                showMessageBox(`Помилка при записі бронювання: ${response.message}`, 'error');
+            }
+        });
+
+        /**
+         * Обробляє відправку форми запиту підтримки.
+         */
+        document.getElementById('supportForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const name = document.getElementById('supportName').value;
+            const problemDescription = document.getElementById('problemDescription').value;
+
+            if (!name || !problemDescription) {
+                showMessageBox('Будь ласка, заповніть всі поля для запиту підтримки.', 'error');
+                return;
+            }
+
+            const response = await callAppsScript('POST', {
+                action: 'recordSupportRequest',
+                name: name,
+                problemDescription: problemDescription
+            });
+
+            if (response.status === 'success') {
+                showMessageBox('Ваш запит підтримки успішно надіслано! Дякую за звернення.', 'success');
+                this.reset();
+            } else {
+                showMessageBox(`Помилка при записі запиту підтримки: ${response.message}`, 'error');
+            }
+        });
+
+        // --- Навігація та ініціалізація ---
+
+        // Плавний скрол для навігації
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                // Закрити мобільне меню після кліку
+                if (window.innerWidth < 768) {
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                }
+            });
+        });
+
+        // Мобільне меню
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // Завантажити елементи галереї при завантаженні сторінки
+        window.onload = loadGalleryItems;
     </script>
 </body>
 </html>
